@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.accident.HurtPeopleMapper">
+	<resultMap type="com.jsumt.vo.accident.HurtPeopleBean" id="hurtPeopleBean">
+		<id property="id" column="ID" />
+		<result property="user_name" column="USER_NAME" />
+		<result property="work_type" column="WORK_TYPE" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="cbxs" column="CBXS" />
+		<result property="sex" column="SEX" />
+		<result property="age" column="AGE" />
+		<result property="is_draf" column="IS_DRAF" />
+		<result property="status" column="STATUS" />
+		<result property="sgbid" column="SGBID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="carNo" column="CARNO" />
+	</resultMap>
+	<!-- 根据条件查询所有人员伤亡信息 -->
+	<select id="queryAllHurtPeoples" resultMap="hurtPeopleBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_HURTPEOPLE
+		<where>
+			<if test="user_name != null and user_name != '' ">
+				AND USER_NAME like CONCAT('%',#{user_name},'%')
+			</if>
+			<if test="status != null and status != '' ">
+				AND STATUS = #{status}
+			</if>
+			<if test="sgbid != null and sgbid != '' ">
+				AND SGBID = #{sgbid}
+			</if>
+		</where>
+	</select>
+	<!-- 新增伤亡人员信息 -->
+	<insert id="addHurtPeople" parameterType="com.jsumt.vo.accident.HurtPeopleBean">
+		INSERT INTO
+		T_AZ_HURTPEOPLE(ID,USER_NAME,WORK_TYPE,BIRTHDAY,CBXS,SEX,AGE,
+			IS_DRAF,STATUS,SGBID,CREATE_TIME,UPDATE_TIME,CARNO)
+		VALUES(
+		#{id},#{user_name},#{work_type},#{birthday},#{cbxs},#{sex},
+		#{age},#{is_draf},#{status},#{sgbid},#{createTime},#{updateTime},#{carNo}
+		)
+	</insert>
+	<!-- 修改事故的数据 -->
+	<update id="updateHurtPeople" parameterType="com.jsumt.vo.accident.HurtPeopleBean" >
+	   UPDATE T_AZ_HURTPEOPLE
+	     <set>
+			<if test="user_name != null and user_name != '' ">
+				USER_NAME = #{user_name},
+			</if>
+			<if test="work_type != null and work_type != '' ">
+				WORK_TYPE = #{work_type},
+			</if>
+			<if test="birthday != null and birthday != '' ">
+				BIRTHDAY = #{birthday},
+			</if>
+			<if test="cbxs != null and cbxs != '' ">
+				CBXS = #{cbxs},
+			</if>
+			<if test="sex != null and sex != '' ">
+				SEX = #{sex},
+			</if>
+			<if test="age != null and age != '' ">
+				AGE = #{age},
+			</if>
+			<if test="is_draf != null and is_draf != '' ">
+				IS_DRAF = #{is_draf},
+			</if>
+			<if test="status != null and status != '' ">
+				STATUS = #{status},
+			</if>
+			<if test="sgbid != null and sgbid != '' ">
+				SGBID = #{sgbid},
+			</if>
+			<if test="carNo != null and carNo != '' ">
+				CARNO = #{carNo},
+			</if>
+			UPDATE_TIME=now(),
+	    </set>
+		<where>
+			<if test="id !=null and id !='' "></if>
+				ID = #{id}
+		</where>
+	</update>
+	<!-- 根据id查询一条人员伤亡的信息 -->
+	<select id="queryOneById" resultMap="hurtPeopleBean"
+		parameterType="java.lang.String">
+		SELECT * FROM T_AZ_HURTPEOPLE
+		<where>
+			AND ID=#{id}
+		</where>
+	</select>
+	<!-- 根据id删除人员伤亡信息 -->
+	<delete id="delHurtPeoples" parameterType="java.util.List">
+		DELETE FROM T_AZ_HURTPEOPLE
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 根据主表的id删除附表伤亡表的 -->
+	<delete id="delHurtPeoplesBySgbid" parameterType="java.util.List">
+		DELETE FROM T_AZ_HURTPEOPLE
+		<where>
+			sgbid IN 
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+</mapper>

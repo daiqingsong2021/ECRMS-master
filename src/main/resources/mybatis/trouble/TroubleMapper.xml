@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.trouble.TroubleMapper">
+    <!-- 隐患类别Bean -->
+	<resultMap type="com.jsumt.vo.trouble.TroubleTypeBean" id="troubleTypeBean">
+		<id property="id" column="ID" />
+		<result property="pcxm" column="PCXM" />
+		<result property="pcnr" column="PCNR" />
+		<result property="yhClyj" column="YH_CLYJ" />
+		<result property="yhLevel" column="YH_LEVEL" />
+		<result property="yhPc" column="YH_PC" />
+		<result property="pid" column="PID" />
+		<result property="isLeaf" column="IS_LEAF" />
+		<result property="iconCls" column="ICONCLS" />
+		<result property="yhLayer" column="YH_LAYER" />
+		<result property="yhNo" column="YH_NO" />
+		<result property="remark" column="REMARK" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="moduleId" column="MODULE_ID" />
+	</resultMap>
+	
+	<!-- 隐患模板Bean -->
+	<resultMap type="com.jsumt.vo.trouble.TroubleModuleBean" id="troubleModuleBean">
+		<id property="id" column="ID" />
+		<result property="moduleName" column="MODULE_NAME" />
+		<result property="creater" column="CREATER" />
+		<result property="orgId" column="ORG_ID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	
+	<!-- 隐患Bean -->
+	<resultMap type="com.jsumt.vo.trouble.TroubleBean" id="troubleBean">
+		<id property="id" column="ID" />
+		<result property="title" column="TITLE" />
+		<result property="zgsx" column="ZGSX" />
+		<result property="jcdw" column="JCDW" />
+		<result property="jcr" column="JCR" />
+		<result property="jcdwId" column="JCDW_ID" />
+		<result property="jcrId" column="JCR_ID" />
+		<result property="sjdw" column="SJDW" />
+		<result property="sjr" column="SJR" />
+		<result property="sjdwId" column="SJDW_ID" />
+		<result property="sjrId" column="SJR_ID" />
+		<result property="jclb" column="JCLB" />
+		<result property="gcmc" column="GCMC" />
+		<result property="yhbh" column="YHBH" />
+		<result property="status" column="STATUS" />
+		<result property="orgId" column="ORG_ID" />
+		<result property="zgzrr" column="ZGZRR" />
+		<result property="zgzrrId" column="ZGZRR_ID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	<!-- 隐患追踪Bean -->
+	<resultMap type="com.jsumt.vo.trouble.TroubleZzBean" id="troubleZzBean">
+		<id property="id" column="ID" />
+		<result property="yhId" column="YH_ID" />
+		<result property="type" column="TYPE" />
+		<result property="cs" column="CS" />
+		<result property="zgjf" column="ZGJF" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	<!-- 隐患问题Bean -->
+	<resultMap type="com.jsumt.vo.trouble.TroubleQuestionBean" id="troubleQuestionBean">
+		<id property="id" column="ID" />
+		<result property="yhId" column="YH_ID" />
+		<result property="yhzzId" column="YH_ZZID" />
+		<result property="title" column="TITLE" />
+		<result property="content" column="CONTENT" />
+		<result property="yyfx" column="YYFX" />
+		<result property="isPass" column="IS_PASS" />
+		<result property="yhLevel" column="YH_LEVEL" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	<select id="queryAllYhMb" resultMap="troubleModuleBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YHMODULE
+		<where>
+			<if test="moduleName != null and moduleName != '' ">
+				AND MODULE_NAME like CONCAT('%',#{moduleName},'%')
+			</if>
+			<if test="creater != null and creater != '' ">
+				AND CREATER = #{creater}
+			</if>
+			<if test="orgId != null and orgId != '' ">
+				AND ORG_ID = #{orgId}
+			</if>
+		</where>
+		order by CREATE_TIME;
+	</select>
+
+	<!-- 根据条件查询组织结构节点 ，若没有查询条件则加载所有的节点 -->
+	<select id="queryYhTypes" resultMap="troubleTypeBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YHTYPE
+		<where>
+			<if test="pcxm != null and pcxm != '' ">
+				AND PCXM like CONCAT('%',#{pcxm},'%')
+			</if>
+			<if test="pcnr != null and pcnr != '' ">
+				AND PCNR like CONCAT('%',#{pcnr},'%')
+			</if>
+			<if test="moduleId != null and moduleId != '' ">
+				AND MODULE_ID = #{moduleId}
+			</if>
+			<if test="isLeaf != null and isLeaf != '' ">
+				AND IS_LEAF = #{isLeaf}
+			</if>
+			<if test="pid != null and pid != '' ">
+				AND PID = #{pid}
+			</if>
+		</where>
+		ORDER BY YH_LAYER,YH_NO,PCXM
+	</select>
+	
+	
+	<insert id="addYhmb" parameterType="com.jsumt.vo.trouble.TroubleModuleBean">
+		INSERT INTO
+		T_AZ_YHMODULE(ID,MODULE_NAME,CREATE_TIME,UPDATE_TIME,CREATER,ORG_ID)
+		VALUES(
+		#{id},#{moduleName},#{createTime},#{updateTime},#{creater},#{orgId}
+		)
+	</insert>
+	
+	
+	<!-- 批量插入隐患类别 -->
+	<insert id="batchInsertTypes" parameterType="java.util.List">
+		INSERT INTO T_AZ_YHTYPE (ID, PCXM,PCNR,YH_CLYJ,YH_LEVEL,YH_PC,PID,IS_LEAF,ICONCLS,YH_LAYER,YH_NO,REMARK,CREATE_TIME,UPDATE_TIME,MODULE_ID)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},#{item.pcxm},#{item.pcnr},#{item.yhClyj},#{item.yhLevel},
+			#{item.yhPc}, #{item.pid}, #{item.isLeaf},#{item.iconCls},#{item.yhLayer},#{item.yhNo},#{item.remark},#{item.createTime},#{item.updateTime}
+			,#{item.moduleId})
+		</foreach>
+	</insert>
+	
+	<select id="queryModuleByNameOrId" resultMap="troubleModuleBean"
+		parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YHMODULE
+		<where>
+			<if test="moduleName != null and moduleName != '' ">
+				AND MODULE_NAME = #{moduleName}
+			</if>
+			<if test="id != null and id != '' ">
+				AND ID = #{id}
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- 根据id删除模板 -->
+	<delete id="delModuleById" parameterType="java.lang.String">
+		DELETE FROM T_AZ_YHMODULE WHERE ID = #{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<!-- 根据id修改隐患模板 -->
+	<update id="updateYhMb" parameterType="java.util.Map">
+		UPDATE T_AZ_YHMODULE
+		<set>
+			<if test="moduleName != null and moduleName != '' ">
+				MODULE_NAME = #{moduleName},
+			</if>
+			UPDATE_TIME=now()
+		</set>
+        WHERE ID = #{id}
+	</update>
+	
+	<delete id="delYhTypeByModuleId" parameterType="java.lang.String">
+		DELETE FROM T_AZ_YHTYPE WHERE MODULE_ID = #{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<select id="queryThTypeById" resultMap="troubleTypeBean"
+		parameterType="java.lang.String">
+		SELECT * FROM T_AZ_YHTYPE
+		<where>
+			AND ID = #{id}
+		</where>
+	</select>
+	
+	<delete id="delYhType" parameterType="java.util.List">
+		DELETE FROM T_AZ_YHTYPE WHERE ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<update id="updateYhlb" parameterType="com.jsumt.vo.trouble.TroubleTypeBean">
+		UPDATE T_AZ_YHTYPE
+		<set>
+			<if test="pcxm != null">
+				PCXM = #{pcxm},
+			</if>
+			<if test="pcnr != null">
+				PCNR = #{pcnr},
+			</if>
+			<if test="yhClyj != null">
+				YH_CLYJ = #{yhClyj},
+			</if>
+			<if test="yhLevel != null">
+				YH_LEVEL = #{yhLevel},
+			</if>
+			<if test="yhPc != null">
+				YH_PC = #{yhPc},
+			</if>
+			<if test="pid != null">
+				PID = #{pid},
+			</if>
+			<if test="isLeaf != null">
+				IS_LEAF = #{isLeaf},
+			</if>
+			<if test="iconCls != null">
+				ICONCLS = #{iconCls},
+			</if>
+			<if test="yhLayer != null">
+				YH_LAYER = #{yhLayer},
+			</if>
+			<if test="yhNo != null">
+				YH_NO = #{yhNo},
+			</if>
+			<if test="remark != null">
+				REMARK = #{remark},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime},
+			</if>
+			 UPDATE_TIME=now(),
+			<if test="moduleId != null">
+				MODULE_ID = #{moduleId},
+			</if>
+		</set>
+        WHERE ID = #{id}
+	</update>
+	
+	
+	<update id="updateYhlbByModuleId" parameterType="com.jsumt.vo.trouble.TroubleTypeBean">
+		UPDATE T_AZ_YHTYPE
+		<set>
+			<if test="pcxm != null">
+				PCXM = #{pcxm},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+        WHERE MODULE_ID = #{moduleId} AND PID='0';
+	</update>
+	
+	<select id="queryMaxNo" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		select MAX(YH_NO)
+		from T_AZ_YHTYPE
+		where
+		PID = #{pid}
+		#{pid,jdbcType=VARCHAR}
+	</select>
+	
+	
+	<select id="queryTroubleZzMaxCs" parameterType="java.util.Map"
+		resultType="java.lang.String">
+		select MAX(CS)
+		from T_AZ_YHQZZ
+		where
+		YH_ID = #{yhId} AND TYPE=#{type}
+	</select>
+
+	<select id="queryTroubleZzMaxCs_" parameterType="java.util.Map"
+			resultType="java.lang.String">
+		select MAX(CS)
+		from T_AZ_YHQZZ
+		where
+		YH_ID = #{yhId} AND TYPE=#{type} and CREATE_TIME=UPDATE_TIME
+	</select>
+	
+	<!-- 查询所有隐患 -->
+	<select id="queryAllTroubleList" resultMap="troubleBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YH
+		<where>
+			<if test="title != null and title != '' ">
+				AND TITLE like CONCAT('%',#{title},'%')
+			</if>
+			<if test="jcdwId != null and jcdwId != '' ">
+				AND JCDW_ID = #{jcdwId}
+			</if>
+			<if test="jcrId != null and jcrId != '' ">
+				AND JCR_ID = #{jcrId}
+			</if>
+			<if test="jcdw != null and jcdw != '' ">
+				AND JCDW like CONCAT('%',#{jcdw},'%')
+			</if>
+			<if test="jcr != null and jcr != '' ">
+				AND JCR = #{jcr}
+			</if>
+			<if test="sjdwId != null and sjdwId != '' ">
+				AND SJDW_ID = #{sjdwId}
+			</if>
+			<if test="sjrId != null and sjrId != '' ">
+				AND SJR_ID = #{sjrId}
+			</if>
+			<if test="sjdw != null and sjdw != '' ">
+				AND SJDW like CONCAT('%',#{sjdw},'%')
+			</if>
+			<if test="sjr != null and sjr != '' ">
+				AND SJR = #{sjr}
+			</if>
+			<if test="jclb != null and jclb != '' ">
+				AND JCLB = #{jclb}
+			</if>
+<!-- 			<if test="status != null and status != '' "> -->
+<!-- 				AND STATUS IN  -->
+<!-- 				<foreach collection="status" item="item" open="(" separator="," close=")"> -->
+<!-- 				     #{item} -->
+<!-- 				</foreach> -->
+<!-- 			</if> -->
+			<if test="status != null and status != '' ">
+				AND STATUS = #{status}
+			</if>
+			<if test="orgId != null and orgId != '' ">
+				AND ((SJDW_ID = #{orgId} AND STATUS!='0') OR JCDW_ID = #{orgId})
+			</if>
+			<if test="startDate != null and startDate != '' ">
+				AND CREATE_TIME  <![CDATA[  >= ]]> str_to_date(#{startDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endDate != null and endDate != '' ">
+				AND CREATE_TIME  <![CDATA[  <= ]]> str_to_date(#{endDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="id != null and id != '' ">
+				AND id = #{id}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+	
+	<select id="queryDclYhList" resultMap="troubleBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YH
+		<where>
+			<if test="orgId != null and orgId != '' ">
+				AND ((SJDW_ID = #{orgId} AND STATUS IN('1','2')) OR (JCDW_ID = #{orgId}  AND STATUS = '3'))
+			</if>
+		</where>
+		ORDER BY UPDATE_TIME DESC
+	</select>
+	
+	<select id="queryOneTrouble" resultMap="troubleBean" parameterType="java.lang.String">
+		SELECT * FROM T_AZ_YH
+		<where>
+			AND ID =#{id}
+		</where>
+	</select>
+	
+	
+	<insert id="addTrouble" parameterType="com.jsumt.vo.trouble.TroubleBean">
+		INSERT INTO
+		T_AZ_YH(ID,TITLE,ZGSX,JCDW,JCR,JCDW_ID,JCR_ID,SJDW,SJR,SJDW_ID,SJR_ID,JCLB,GCMC,YHBH,ZGZRR,ZGZRR_ID,STATUS,CREATE_TIME,UPDATE_TIME,ORG_ID)
+		VALUES(
+		#{id},#{title},#{zgsx},#{jcdw},#{jcr},#{jcdwId},#{jcrId},#{sjdw},#{sjr},#{sjdwId},#{sjrId},#{jclb},#{gcmc},#{yhbh},#{zgzrr},#{zgzrrId},#{status},#{createTime},#{updateTime},#{orgId}
+		)
+	</insert>
+	
+	
+	<insert id="addTroubleZz" parameterType="com.jsumt.vo.trouble.TroubleZzBean">
+		INSERT INTO
+		T_AZ_YHQZZ(ID,YH_ID,TYPE,CS,ZGJF,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		  #{id},#{yhId},#{type},#{cs},#{zgjf},#{createTime},#{updateTime}
+		)
+	</insert>
+	
+	<insert id="addTroubleQuest" parameterType="com.jsumt.vo.trouble.TroubleQuestionBean">
+		INSERT INTO
+		T_AZ_YHQUESTION(ID,YH_ID,YH_ZZID,TITLE,CONTENT,YH_LEVEL,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		  #{id},#{yhId},#{yhzzId},#{title},#{content},#{yhLevel},#{createTime},#{updateTime}
+		)
+	</insert>
+	
+	<insert id="addTroubleQuestBatch" parameterType="java.util.List">
+		INSERT INTO
+		T_AZ_YHQUESTION(ID,YH_ID,YH_ZZID,TITLE,CONTENT,YH_LEVEL,YYFX,IS_PASS,CREATE_TIME,UPDATE_TIME)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+		      #{item.id},#{item.yhId},#{item.yhzzId},#{item.title},#{item.content},#{item.yhLevel},#{item.yyfx},#{item.isPass},#{item.createTime},#{item.updateTime}
+		    )
+		</foreach>
+	</insert>
+	
+    <select id="queryAllQIdsByTrobIds" resultType="java.util.Map"
+		parameterType="java.util.List">
+		SELECT T.ID FROM T_AZ_YHQUESTION T
+	     <where>
+			T.YH_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</select>
+	
+	<delete id="delTrobQuesByIds" parameterType="java.util.List">
+		DELETE FROM T_AZ_YHQUESTION
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="delTroubleQuest" parameterType="java.util.Map">
+		DELETE FROM T_AZ_YHQUESTION
+		<where>
+		    <if test="yhzzId!=null and yhzzId!='' ">
+				AND YH_ZZID =#{yhzzId}
+			</if>
+			<if test="yhId!=null and yhId!='' ">
+				AND YH_ID =#{yhId}
+			</if>
+			<if test="id!=null and id!='' ">
+				AND ID =#{id}
+			</if>
+		</where>
+	</delete>
+	
+	<delete id="delTrobbzzByTrobIds" parameterType="java.util.List">
+		DELETE FROM T_AZ_YHQZZ
+		<where>
+			YH_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="delTrobbzzById" parameterType="java.lang.String">
+		DELETE FROM T_AZ_YHQZZ WHERE ID = #{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<delete id="delTroubleByIds" parameterType="java.util.List">
+		DELETE FROM T_AZ_YH
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	
+	<update id="publishTrouble" parameterType="java.util.List">
+		UPDATE T_AZ_YH
+		<set>
+			UPDATE_TIME=now(),
+			STATUS="1",
+		</set>
+		<where>
+			ID IN
+			<foreach collection="list" separator="," item="item" open="("
+				close=")">
+				#{item.id}
+			</foreach>
+		</where>
+	</update>
+	
+	<select id="queryTroublezz" resultMap="troubleZzBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YHQZZ
+		<where>
+			<if test="type != null and type != '' ">
+				AND TYPE = #{type}
+			</if>
+			<if test="yhId != null and yhId != '' ">
+				AND YH_ID = #{yhId}
+			</if>
+			<if test="id != null and id != '' ">
+				AND ID = #{id}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+	
+	<select id="queryTroubleQues" resultMap="troubleQuestionBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_YHQUESTION
+		<where>
+			<if test="yhzzId != null and yhzzId != '' ">
+				AND YH_ZZID = #{yhzzId}
+			</if>
+			<if test="yhId != null and yhId != '' ">
+				AND YH_ID = #{yhId}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateQuestBatch" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_AZ_YHQUESTION
+			<set>
+				<if test="item.title != null and item.title != '' ">
+					TITLE = #{item.title},
+				</if>
+				<if test="item.content != null and item.content!= '' ">
+					CONTENT = #{item.content},
+				</if>
+				<if test="item.yhLevel != null and item.yhLevel!= '' ">
+					YH_LEVEL = #{item.yhLevel},
+				</if>
+				<if test="item.yyfx != null and item.yyfx!= '' ">
+					YYFX = #{item.yyfx},
+				</if>
+				UPDATE_TIME=now(),
+			</set>
+			where ID=#{item.id}
+		</foreach>
+	</update>
+	
+	<update id="updateTrouble" parameterType="com.jsumt.vo.trouble.TroubleBean">
+		UPDATE T_AZ_YH
+		<set>
+		   <if test="title != null and title != '' ">
+			   TITLE = #{title},
+			</if>
+			<if test="zgsx != null and zgsx != '' ">
+				ZGSX = #{zgsx},
+			</if>
+			<if test="jcdw != null and jcdw != '' ">
+				JCDW = #{jcdw},
+			</if>
+			<if test="jcdwId != null and jcdwId != '' ">
+				JCDW_ID = #{jcdwId},
+			</if>
+			<if test="jcr != null and jcr != '' ">
+				JCR = #{jcr},
+			</if>
+			<if test="jcrId != null and jcrId != '' ">
+				JCR_ID = #{jcrId},
+			</if>
+			<if test="sjdw != null and sjdw != '' ">
+				SJDW = #{sjdw},
+			</if>
+			<if test="sjdwId != null and sjdwId != '' ">
+				SJDW_ID = #{sjdwId},
+			</if>
+			<if test="sjr != null and sjr != '' ">
+				SJR = #{sjr},
+			</if>
+			<if test="sjrId != null and sjrId != '' ">
+				SJR_ID = #{sjrId},
+			</if>
+			<if test="jclb != null and jclb != '' ">
+				JCLB = #{jclb},
+			</if>
+			<if test="status != null and status != '' ">
+			   STATUS = #{status},
+			</if>
+			<if test="gcmc != null and gcmc != '' ">
+			   GCMC = #{gcmc},
+			</if>
+			<if test="yhbh != null and yhbh != '' ">
+			   YHBH = #{yhbh},
+			</if>
+			<if test="zgzrr != null and zgzrr != '' ">
+			   ZGZRR = #{zgzrr},
+			</if>
+			<if test="zgzrrId != null and zgzrrId != '' ">
+			   ZGZRR_ID = #{zgzrrId},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID =#{id}
+		</where>
+	</update>
+	
+	
+	<update id="updateTroubleStatus" parameterType="java.util.Map">
+		UPDATE T_AZ_YH
+		<set>
+		   <if test="status != null and status != '' ">
+			   STATUS = #{status},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID =#{id}
+		</where>
+	</update>
+	
+	<select id="queryJcdwQuestNums" resultType="java.util.Map"  parameterType="java.util.Map">
+		SELECT A.SJDW,A.SJDW_ID,C.YH_LEVEL,COUNT(1) AS NUM FROM T_AZ_YH A INNER JOIN T_AZ_YHQZZ B ON A.ID = B.YH_ID 
+		INNER JOIN T_AZ_YHQUESTION C ON B.ID = C.YH_ZZID
+		<where>
+				AND B.TYPE = '0'
+			<if test="startDate != null and startDate != '' ">
+				AND B.CREATE_TIME  <![CDATA[  >= ]]> str_to_date(#{startDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endDate != null and endDate != '' ">
+				AND B.CREATE_TIME  <![CDATA[  <= ]]> str_to_date(#{endDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+		</where>
+		GROUP BY A.SJDW,C.YH_LEVEL
+	</select>
+	
+	<select id="queryQuestHistory" resultMap="troubleQuestionBean" parameterType="java.util.Map">
+		SELECT Q.* FROM T_AZ_YHQZZ T,T_AZ_YHQUESTION Q
+		<where>
+			<if test="zzType != null and zzType != '' ">
+				AND T.TYPE = #{zzType}
+			</if>
+			<if test="yhId != null and yhId != '' ">
+				AND T.YH_ID = #{yhId}
+			</if>
+			<if test="yhId != null and yhId != '' ">
+				AND Q.YH_ID = #{yhId}
+			</if>
+			  AND Q.YH_ZZID = T.ID
+			<if test="isPass != null and isPass != '' ">
+				AND Q.IS_PASS = #{isPass}
+			</if>
+			<if test="title != null and title != '' ">
+				AND Q.TITLE = #{title}
+			</if>
+		</where>
+		ORDER BY T.CREATE_TIME DESC
+	</select>
+	
+	
+	<update id="updateYhZzBean" parameterType="com.jsumt.vo.trouble.TroubleZzBean">
+		UPDATE T_AZ_YHQZZ
+		<set>
+		   <if test="zgjf != null and zgjf != '' ">
+			   ZGJF = #{zgjf},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID =#{id}
+		</where>
+	</update>
+	
+</mapper>

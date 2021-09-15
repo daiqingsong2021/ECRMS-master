@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.ProjectMapper">
+	<resultMap type="com.jsumt.vo.system.ProjectBean" id="project">
+		<id property="projectId" column="PROJECT_ID" />
+		<result property="projectPId" column="PROJECT_PID" />
+		<result property="projectName" column="PROJECT_NAME" />
+		<result property="linkMan" column="LINK_MAN" />
+		<result property="remark" column="REMARK" />
+		<result property="projectCode" column="PROJECT_CODE" />
+		<result property="projectUnit" column="PROJECT_UNIT" />
+		<result property="isLeaf" column="IS_LEAF" />
+		<result property="projectLayer" column="PROJECT_LAYER" />
+		<result property="projectNo" column="PROJECT_NO" />
+		<result property="linkTel" column="LINK_TEL" />
+		<result property="iconCls" column="ICONCLS" />
+	</resultMap>
+	<select id="queryProjects" parameterType="java.util.Map"
+		resultMap="project">
+		SELECT * FROM T_SYS_PROJECT
+		<where>
+			<if test="projectName != null and projectName != '' ">
+				AND PROJECT_NAME like CONCAT('%',#{projectName},'%')
+			</if>
+			<if test="projectCode != null and projectCode != '' ">
+				AND PROJECT_CODE like CONCAT('%',#{projectCode},'%')
+			</if>
+			<if test="projectPId != null and projectPId != '' ">
+				AND PROJECT_PID =#{projectPId}
+			</if>
+		</where>
+		order by PROJECT_LAYER,PROJECT_NO;
+	</select>
+
+	<!-- 根据 projectId查询对象 -->
+	<select id="queryOneById" resultMap="project" parameterType="java.lang.String">
+		SELECT * FROM T_SYS_PROJECT
+		<where>
+			AND PROJECT_ID=#{projectId}
+		</where>
+	</select>
+	<select id="queryMaxNo" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		select MAX(PROJECT_NO)
+		from T_SYS_PROJECT
+		where
+		PROJECT_PID =
+		#{projectPid,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 更新项目对象 -->
+	<update id="updateProject" parameterType="com.jsumt.vo.system.ProjectBean">
+		UPDATE T_SYS_PROJECT
+		<set>
+			<if test="projectName != null and projectName != '' ">
+				PROJECT_NAME=#{projectName},
+			</if>
+			<if test="linkMan != null">
+				LINK_MAN=#{linkMan},
+			</if>
+			<if test="remark != null">
+				REMARK=#{remark},
+			</if>
+			<if test="projectCode != null and projectCode != '' ">
+				PROJECT_CODE=#{projectCode},
+			</if>
+			<if test="projectUnit != null">
+				PROJECT_UNIT=#{projectUnit},
+			</if>
+			<if test="isLeaf != null and isLeaf != '' ">
+				IS_LEAF=#{isLeaf},
+			</if>
+			<if test="projectLayer != null and projectLayer != '' ">
+				PROJECT_LAYER=#{projectLayer},
+			</if>
+			<if test="projectNo != null and projectNo != '' ">
+				PROJECT_NO=#{projectNo},
+			</if>
+			<if test="linkTel != null ">
+				LINK_TEL=#{linkTel},
+			</if>
+			<if test="iconCls != null and iconCls != '' ">
+				ICONCLS=#{iconCls},
+			</if>
+		</set>
+		<where>
+			<if test="projectId !=null and projectId !='' "></if>
+			PROJECT_ID = #{projectId}
+		</where>
+	</update>
+
+
+	<!-- 新增项目 -->
+	<insert id="addProject" parameterType="com.jsumt.vo.system.ProjectBean">
+		INSERT INTO
+		T_SYS_PROJECT(PROJECT_ID,PROJECT_PID,PROJECT_NAME,LINK_MAN,
+		REMARK,PROJECT_CODE,PROJECT_UNIT,IS_LEAF,PROJECT_LAYER,
+		PROJECT_NO,LINK_TEL,ICONCLS)
+		VALUES(
+		#{projectId},#{projectPId},#{projectName},#{linkMan},
+		#{remark},#{projectCode},#{projectUnit},#{isLeaf},
+		#{projectLayer},#{projectNo},#{linkTel},#{iconCls}
+		)
+	</insert>
+
+	<!-- 根据projectId删除组织机构对象 -->
+	<delete id="deloProjects" parameterType="java.util.List">
+		DELETE FROM T_SYS_PROJECT WHERE PROJECT_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

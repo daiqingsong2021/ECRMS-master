@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.OrganizationMapper">
+	<resultMap type="com.jsumt.vo.system.OrganizationBean" id="Organization">
+		<id property="org_id" column="ORG_ID" />
+		<result property="org_pid" column="ORG_PID" />
+		<result property="name_cn" column="NAME_CN" />
+		<result property="name_cn_simple" column="NAME_CN_SIMPLE" />
+		<result property="name_en" column="NAME_EN" />
+		<result property="name_en_simple" column="NAME_EN_SIMPLE" />
+		<result property="name_spell" column="NAME_SPELL" />
+		<result property="class_id" column="CLASS_ID" />
+		<result property="type_id" column="TYPE_ID" />
+		<result property="grade_id" column="GRADE_ID" />
+		<result property="link_man" column="LINK_MAN" />
+		<result property="link_tel" column="LINK_TEL" />
+		<result property="fax" column="FAX" />
+		<result property="org_addr" column="ORG_ADDR" />
+		<result property="remark" column="REMARK" />
+		<result property="orgNo" column="ORG_NO" />
+		<result property="orgLayer" column="ORG_LAYER" />
+		<result property="isLeaf" column="IS_LEAF" />
+		<result property="iconCls" column="ICONCLS" />
+	</resultMap>
+
+	<!-- 根据条件查询组织结构节点 ，若没有查询条件则加载所有的节点 -->
+	<select id="queryorganizations" resultMap="Organization"
+		parameterType="java.util.Map">
+		SELECT * FROM T_SYS_ORG
+		<where>
+			<if test="name_cn != null and name_cn != '' ">
+				AND NAME_CN like CONCAT('%',#{name_cn},'%')
+			</if>
+			<if test="org_pid != null and org_pid != '' ">
+				AND ORG_PID =#{org_pid}
+			</if>
+		</where>
+		order by ORG_LAYER,ORG_NO;
+	</select>
+
+	<!-- 新增组织机构 -->
+	<insert id="addorganization" parameterType="com.jsumt.vo.system.OrganizationBean">
+		INSERT INTO
+		T_SYS_ORG(ORG_ID,ORG_PID,NAME_CN,NAME_CN_SIMPLE,NAME_EN,NAME_EN_SIMPLE,NAME_SPELL,CLASS_ID,TYPE_ID,GRADE_ID,LINK_MAN,LINK_TEL,FAX,ORG_ADDR,REMARK,ORG_NO,ORG_LAYER,IS_LEAF,ICONCLS)
+		VALUES(
+		#{org_id},#{org_pid},#{name_cn},#{name_cn_simple},#{name_en},#{name_en_simple},
+		#{name_spell},null,null,null,#{link_man},#{link_tel},#{fax},#{org_addr},#{remark},#{orgNo},#{orgLayer},#{isLeaf},#{iconCls}
+		)
+	</insert>
+
+	<!-- 根据 org_id查询组织机构对象 -->
+	<select id="queryOneById" resultMap="Organization"
+		parameterType="java.lang.String">
+		SELECT * FROM T_SYS_ORG
+		<where>
+			AND ORG_ID=#{org_id}
+		</where>
+	</select>
+	
+	<select id="queryOneByName" resultMap="Organization"
+		parameterType="java.lang.String">
+		SELECT * FROM T_SYS_ORG
+		<where>
+			AND NAME_CN=#{name_cn}
+		</where>
+	</select>
+
+	<!-- 根据org_id删除组织机构对象 -->
+	<delete id="delorganizations" parameterType="java.util.List">
+		DELETE FROM T_SYS_ORG WHERE ORG_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 跟新用户对象 -->
+	<update id="updateOrganization" parameterType="com.jsumt.vo.system.OrganizationBean">
+		UPDATE T_SYS_ORG
+		<set>
+			<if test="name_cn != null and name_cn != '' ">
+				NAME_CN=#{name_cn},
+			</if>
+			<if test="name_cn_simple != null">
+				NAME_CN_SIMPLE=#{name_cn_simple},
+			</if>
+			<if test="name_en != null ">
+				NAME_EN=#{name_en},
+			</if>
+			<if test="name_en_simple != null">
+				NAME_EN_SIMPLE=#{name_en_simple},
+			</if>
+			<if test="link_man != null">
+				LINK_MAN=#{link_man},
+			</if>
+			<if test="link_tel != null">
+				LINK_TEL=#{link_tel},
+			</if>
+			<if test="fax != null">
+				FAX=#{fax},
+			</if>
+			<if test="org_addr != null">
+				ORG_ADDR=#{org_addr},
+			</if>
+			<if test="remark != null">
+				REMARK=#{remark},
+			</if>
+			<if test="isLeaf != null and isLeaf != '' ">
+				IS_LEAF=#{isLeaf},
+			</if>
+			<if test="iconCls != null and iconCls != '' ">
+				ICONCLS=#{iconCls},
+			</if>
+		</set>
+		<where>
+			<if test="org_id !=null and org_id !='' "></if>
+			ORG_ID = #{org_id}
+		</where>
+	</update>
+
+	<select id="queryMaxNo" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		select MAX(ORG_NO)
+		from t_sys_org
+		where
+		ORG_PID =
+		#{org_pid,jdbcType=VARCHAR}
+	</select>
+	
+	
+	
+	
+   <select id="queryOrgUsersByOrgId" parameterType="java.lang.String"
+		resultType="java.util.Map">
+	  SELECT *,(select GROUP_CONCAT(DISTINCT(e.ROLE_CODE)) from t_sys_roleuser 
+		d,t_sys_role e where a.USER_ID=d.USER_ID and d.ROLE_ID=e.ROLE_ID) as USERROLE 
+     FROM T_SYS_USERS a,t_sys_orguser b,t_sys_org c WHERE a.USER_ID = b.USER_ID 
+      AND b.ORG_ID = c.ORG_ID AND c.ORG_ID = #{orgId,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

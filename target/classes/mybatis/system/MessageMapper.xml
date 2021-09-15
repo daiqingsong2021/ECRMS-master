@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.MessageMapper">
+
+    <resultMap type="com.jsumt.vo.system.MessageBean" id="messageBean">
+		<id property="id" column="ID" />
+		<result property="message" column="MESSAGE" />
+		<result property="sender" column="SENDER" />
+		<result property="senderId" column="SENDER_ID" />
+		<result property="receiver" column="RECEIVER" />
+		<result property="receiverId" column="RECEIVER_ID" />
+		<result property="status" column="STATUS" />
+		<result property="sendOrg" column="SENDORG" />
+		<result property="receiveOrg" column="RECEIVEORG" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	<select id="queryMessage" resultMap="messageBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_MESSAGE
+		<where>
+			<if test="senderId != null and senderId != '' ">
+				AND SENDER_ID = #{senderId}
+			</if>
+			<if test="receiveId != null and receiveId != '' ">
+				AND RECEIVER_ID = #{receiveId}
+			</if>
+			<if test="status != null and status != '' ">
+				AND STATUS = #{status}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+	</select>
+	
+   <!-- 根据id修改状态 -->
+	<update id="updateMessageStatus" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_AZ_MESSAGE
+			<set>
+				<if test="item.status != null and item.status != '' ">
+					STATUS = #{item.status},
+				</if>
+				UPDATE_TIME=now(),
+			</set>
+			where ID=#{item.id}
+		</foreach>
+	</update>
+	
+	
+	<insert id="addMessage" parameterType="com.jsumt.vo.system.MessageBean">
+		INSERT INTO
+		T_AZ_MESSAGE(ID,MESSAGE,SENDER,SENDER_ID,RECEIVER,RECEIVER_ID,STATUS,SENDORG,RECEIVEORG,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		#{id},#{message},#{sender},#{senderId},#{receiver},#{receiverId},
+		#{status},#{sendOrg},#{receiveOrg},#{createTime},#{updateTime}
+		)
+	</insert>
+	
+	<insert id="addMessageBatch" parameterType="java.util.List">
+		INSERT INTO
+		T_AZ_MESSAGE(ID,MESSAGE,SENDER,SENDER_ID,RECEIVER,RECEIVER_ID,STATUS,SENDORG,RECEIVEORG,CREATE_TIME,UPDATE_TIME)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+		     #{item.id},#{item.message},#{item.sender},#{item.senderId},#{item.receiver},#{item.receiverId},
+		    #{item.status},#{item.sendOrg},#{item.receiveOrg},#{item.createTime},#{item.updateTime}
+		    )
+		</foreach>
+	</insert>
+	
+	<!-- 删除状态为已读的待办消息，和未读状态时间超过15天的待办消息 -->
+	<delete id="delMessageShed">
+		DELETE FROM T_AZ_MESSAGE WHERE STATUS = '1' OR (STATUS = '0' AND TIMESTAMPDIFF(DAY, CREATE_TIME, NOW()) > 15)
+	</delete>
+</mapper>

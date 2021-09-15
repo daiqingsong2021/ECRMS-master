@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.RoleMenuMapper">
+	<resultMap type="com.jsumt.vo.system.RoleMenuBean" id="roleMenuBean">
+		<id property="id" column="ID" />
+		<result property="roleId" column="ROLE_ID" />
+		<result property="menuId" column="MENU_ID" />
+		<result property="canRead" column="CAN_READ" />
+		<result property="canWrite" column="CAN_WRITE" />
+	</resultMap>
+	<!-- 批量插入数据 -->
+	<insert id="insertQx" parameterType="java.util.List">
+		INSERT INTO T_SYS_ROLEMENU (ID, ROLE_ID,MENU_ID,CAN_READ,CAN_WRITE)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},
+			#{item.roleId}, #{item.menuId}, #{item.canRead},#{item.canWrite}
+			)
+		</foreach>
+
+	</insert>
+	<!-- 批量更新数据 -->
+	<update id="updateQx" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_SYS_ROLEMENU
+			<set>
+				<if test="item.canRead != null and item.canRead != '' ">
+					CAN_READ = #{item.canRead},
+				</if>
+				<if test="item.canWrite != null and item.canWrite != '' ">
+					CAN_WRITE = #{item.canWrite},
+				</if>
+			</set>
+			where ROLE_ID = #{item.roleId} AND MENU_ID=#{item.menuId}
+		</foreach>
+	</update>
+
+
+	<!-- 根据muenId和moduleId查询数据是否存在 -->
+	<select id="menuRoleIsExist" parameterType="java.util.Map"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM T_SYS_ROLEMENU
+		<where>
+			ROLE_ID =#{roleId} AND MENU_ID=#{menuId}
+		</where>
+	</select>
+	<!-- 查询该角色所拥有的T_SYS_ROLEMENU -->
+	<select id="queryRoleMenusByRoleId" resultMap="roleMenuBean"
+		parameterType="java.lang.String">
+		select * from T_SYS_ROLEMENU t where t.ROLE_ID=#{roleId};
+	</select>
+
+	<!-- 根据menu_id删除 -->
+	<delete id="deleteRoleMenuByMenuId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEMENU
+		<where>
+			MENU_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 根据role_id删除T_SYS_ROLEMENU -->
+	<delete id="deleteRMByRoleId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEMENU
+		<where>
+			ROLE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<select id="queryMenusByRole" resultType="java.util.Map"
+		parameterType="java.util.List">
+		select distinct a.*,b.CAN_READ,b.CAN_WRITE 
+		from t_sys_menu a inner join T_SYS_ROLEMENU b
+		on
+		a.MENU_ID=b.MENU_ID
+		inner
+		join T_SYS_ROLE c
+		on b.ROLE_ID =c.ROLE_ID
+		<where>
+			c.ROLE_ID in
+			<foreach collection="list" item="role" open="(" close=")"
+				separator=",">
+				#{role.role_id}
+			</foreach>
+		</where>
+		order by a.MENU_LAYER,a.MENU_NO
+	</select>
+</mapper>

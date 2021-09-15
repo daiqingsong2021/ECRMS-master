@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.UserManageMapper">
+	<resultMap type="com.jsumt.vo.system.UserBean" id="userManger">
+		<id property="user_id" column="USER_ID" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="user_name" column="USER_NAME" />
+		<result property="user_code" column="USER_CODE" />
+		<result property="phone" column="PHONE" />
+		<result property="work_no" column="WORK_NO" />
+		<result property="sex" column="SEX" />
+		<result property="work_date" column="WORK_DATE" />
+		<result property="email" column="EMAIL" />
+		<result property="home_addr" column="HOME_ADDR" />
+		<result property="user_pwd" column="USER_PWD" />
+		<result property="car_no" column="CAR_NO" />
+		<result property="userImage" column="USER_IMAGE" jdbcType="BLOB"
+			typeHandler="org.apache.ibatis.type.BlobTypeHandler" />
+		<result property="car_no" column="CAR_NO" />
+		<result property="userRole" column="USERROLE" />
+		<result property="userRoleCodes" column="USERROLECODES" />
+		<result property="userRoleIds" column="USERROLEIDS" />
+		<result property="orgName" column="ORGNAME" />
+		<result property="orgId" column="ORGID" />
+		<result property="remark" column="REMARK" />
+		<result property="imageName" column="IMAGE_NAME" />
+		<result property="loginTime" column="LOGIN_TIME" />
+		<result property="skin" column="SKIN" />
+	</resultMap>
+	<!-- 根据条件查询用户 （关联组织机构） -->
+	<select id="queryUsers" resultMap="userManger" parameterType="java.util.Map">
+		SELECT U.*,O.NAME_CN AS ORGNAME
+		FROM T_SYS_USERS U INNER JOIN
+		T_SYS_ORGUSER OU
+		ON
+		U.USER_ID=OU.USER_ID
+		INNER
+		JOIN T_SYS_ORG O
+		ON
+		OU.ORG_ID =O.ORG_ID
+		<where>
+			<!-- 关联查询指定组织机构下的用户 -->
+			<if test="organiz_id != null and organiz_id != '' ">
+				AND O.ORG_ID =#{organiz_id}
+			</if>
+			<if test="work_no != null and work_no != '' ">
+				AND U.WORK_NO =#{work_no}
+			</if>
+			<if test="USER_NAME != null and USER_NAME != '' ">
+				AND U.USER_NAME LIKE CONCAT('%',#{USER_NAME},'%')
+			</if>
+			<if test="USER_CODE != null and USER_CODE != '' ">
+				AND U.USER_CODE LIKE CONCAT('%',#{USER_CODE},'%')
+			</if>
+		</where>
+	</select>
+	<!-- 用用户表插入数据 -->
+	<insert id="insertUserInfo" parameterType="com.jsumt.vo.system.UserBean">
+		INSERT INTO
+		t_sys_users(user_id,user_name,user_code,car_no,birthday,phone,work_no,sex,work_date,email,home_addr,user_pwd,remark,IMAGE_NAME)
+		VALUES(
+		#{user_id},#{user_name},#{user_code},#{car_no},#{birthday},
+		#{phone},#{work_no},#{sex},#{work_date},#{email},#{home_addr},
+		#{user_pwd},'',''
+		)
+	</insert>
+	<!--向用户组织机构表插入数据（用户与组织机构关联的中间表） -->
+	<insert id="insertOrgUser" parameterType="java.util.Map">
+		INSERT INTO
+		T_SYS_ORGUSER
+		VALUES(
+		#{ID},#{ORG_ID},#{USER_ID}
+		)
+	</insert>
+
+	<!-- 根据user_id删除用户对象 -->
+	<delete id="deleteUsersInfo" parameterType="java.util.List">
+		DELETE FROM T_SYS_USERS
+		<where>
+			USER_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 根据user_id删除用户对象 -->
+	<delete id="deleteUserOrg" parameterType="java.util.List">
+		DELETE FROM T_SYS_ORGUSER WHERE USER_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<delete id="deleteUserRole" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEUSER WHERE USER_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	<!-- 跟新用户对象 -->
+	<update id="updateUser" parameterType="com.jsumt.vo.system.UserBean">
+		UPDATE T_SYS_USERS
+		<set>
+			<if test="user_name != null and user_name != '' ">
+				USER_NAME=#{user_name},
+			</if>
+			<if test="user_code != null and user_code != '' ">
+				USER_CODE=#{user_code},
+			</if>
+			<if test="birthday != null">
+				BIRTHDAY=#{birthday},
+			</if>
+			<if test="phone != null">
+				PHONE=#{phone},
+			</if>
+			<if test="car_no != null ">
+				CAR_NO=#{car_no},
+			</if>
+			<if test="work_no != null">
+				WORK_NO=#{work_no},
+			</if>
+			<if test="sex != null and sex != '' ">
+				SEX=#{sex},
+			</if>
+			<if test="work_date != null">
+				WORK_DATE=#{work_date},
+			</if>
+			<if test="email != null">
+				EMAIL=#{email},
+			</if>
+			<if test="home_addr != null">
+				HOME_ADDR=#{home_addr},
+			</if>
+			<if test="user_pwd != null and user_pwd != '' ">
+				USER_PWD=#{user_pwd},
+			</if>
+			<if test="userImage != null and userImage != '' ">
+				USER_IMAGE=#{userImage,typeHandler=org.apache.ibatis.type.BlobTypeHandler},
+			</if>
+			<if test="remark != null">
+				REMARK=#{remark},
+			</if>
+			<if test="imageName != null and imageName != '' ">
+				IMAGE_NAME=#{imageName},
+			</if>
+			<if test="loginTime != null and loginTime != '' ">
+				LOGIN_TIME=#{loginTime},
+			</if>
+			<if test="skin != null">
+				SKIN=#{skin},
+			</if>
+		</set>
+		<where>
+			<if test="user_id !=null and user_id !='' ">
+				AND USER_ID=#{user_id}
+			</if>
+		</where>
+	</update>
+
+
+	<!-- 根据user_id删除用户对象 -->
+	<delete id="deleteOrgUserByOrgIds" parameterType="java.util.List">
+		DELETE FROM T_SYS_ORGUSER WHERE ORG_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 根据user_code 查用户 -->
+	<select id="queryUserByCode" resultMap="userManger"
+		parameterType="java.lang.String">
+		select U.*,
+		(select GROUP_CONCAT(DISTINCT(c.ROLE_NAME)) from t_sys_roleuser
+		b,t_sys_role c where u.USER_ID=b.USER_ID and b.ROLE_ID=c.ROLE_ID)
+		as
+		USERROLE,
+		(select GROUP_CONCAT(DISTINCT(c.ROLE_CODE)) from t_sys_roleuser
+		b,t_sys_role c where u.USER_ID=b.USER_ID and b.ROLE_ID=c.ROLE_ID)
+		as
+		USERROLECODES,
+		(select GROUP_CONCAT(DISTINCT(c.ROLE_ID)) from t_sys_roleuser
+		b,t_sys_role c where u.USER_ID=b.USER_ID and b.ROLE_ID=c.ROLE_ID) 
+		as 
+		USERROLEIDS,
+	   (select c.NAME_CN from t_sys_orguser
+		b,t_sys_org c where u.USER_ID=b.USER_ID and b.ORG_ID=c.ORG_ID)
+		as
+		ORGNAME,
+	   (select b.ORG_ID from t_sys_orguser
+		b where u.USER_ID=b.USER_ID)
+		as
+		ORGID 
+		from T_SYS_USERS U where U.USER_CODE
+		=#{user_code}
+	</select>
+	
+	<select id="queryUserById" resultMap="userManger" parameterType="java.lang.String">
+		SELECT * FROM T_SYS_USERS WHERE USER_ID=#{id}
+	</select>
+
+</mapper>

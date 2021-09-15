@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 要执行任务的任务类。 -->
+	<bean id="delMsgExecutor" class="com.jsumt.quartz.DelMsgExecutor">
+	</bean>
+	<!-- 将需要执行的定时任务注入JOB中。 -->
+	<bean id="delMsgJob"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="delMsgExecutor"></property>
+		<!-- 任务类中需要执行的方法 -->
+		<property name="targetMethod" value="deleteMessage"></property>
+		<!-- 上一次未执行完成的，要等待有再执行。 -->
+		<property name="concurrent" value="false"></property>
+	</bean>
+
+	<bean id="delMsgTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="delMsgJob"></property>
+		<!-- 3秒钟后执行 -->
+		<!-- <property name="startDelay" value="3000"></property> -->
+		<!-- 执行的频率为2秒执行一次 -->
+		<!-- <property name="repeatInterval" value="2000"></property> -->
+		<!-- [秒] [分] [小时] [日] [月] [周] [年] -->
+		<!-- 每晚12点 -->
+		<property name="cronExpression" value="0 0 0 * * ?" />
+		<!-- <property name="cronExpression" value="0/5 * * * * ?" /> -->
+	</bean>
+
+	<bean id="schedulerFactoryBean"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="delMsgTrigger"></ref>
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.RoleMapper">
+	<resultMap type="com.jsumt.vo.system.RoleBean" id="roleBean">
+		<id property="role_id" column="ROLE_ID" />
+		<result property="role_name" column="ROLE_NAME" />
+		<result property="role_no" column="ROLE_NO" />
+		<result property="role_code" column="ROLE_CODE" />
+		<result property="remark" column="REMARK" />
+		<result property="role_type" column="ROLE_TYPE" />
+		<result property="role_pid" column="ROLE_PID" />
+		<result property="roleLayer" column="ROLE_LAYER" />
+		<result property="iconCls" column="ICONCLS" />
+	</resultMap>
+
+	<!-- 根据org_id删除组织机构对象 -->
+	<delete id="deleteByPrimaryKey" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLE WHERE ROLE_ID IN
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 新增角色 -->
+	<insert id="addRole" parameterType="com.jsumt.vo.system.RoleBean">
+		INSERT INTO T_SYS_ROLE
+		(ROLE_ID,ROLE_NAME,ROLE_NO,ROLE_CODE,REMARK,ROLE_TYPE,ROLE_PID,ROLE_LAYER,ICONCLS)
+		VALUES(
+		#{role_id},#{role_name},#{role_no},#{role_code},
+		#{remark},#{role_type},#{role_pid},#{roleLayer},#{iconCls}
+		)
+	</insert>
+
+	<!-- 更新角色 -->
+	<update id="updateRole" parameterType="com.jsumt.vo.system.RoleBean">
+		UPDATE T_SYS_ROLE
+		<set>
+			<if test="role_name != null and role_name != '' ">
+				ROLE_NAME=#{role_name},
+			</if>
+			<if test="role_no != null and role_no != '' ">
+				ROLE_NO=#{role_no},
+			</if>
+			<if test="role_code != null and role_code != '' ">
+				ROLE_CODE=#{role_code},
+			</if>
+			<if test="remark != null ">
+				REMARK=#{remark},
+			</if>
+			<if test="role_type != null and role_type != '' ">
+				ROLE_TYPE=#{role_type},
+			</if>
+			<if test="role_pid != null and role_pid != '' ">
+				ROLE_PID=#{role_pid},
+			</if>
+			<if test="roleLayer != null and roleLayer != '' ">
+				ROLE_LAYER=#{roleLayer},
+			</if>
+			<if test="iconCls != null and iconCls != '' ">
+				ICONCLS=#{iconCls},
+			</if>
+		</set>
+		<where>
+			<if test="role_id !=null and role_id !='' "></if>
+			AND ROLE_ID = #{role_id}
+		</where>
+	</update>
+
+	<!-- 查询最大序号 -->
+	<select id="queryMaxNo" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		SELECT MAX(ROLE_NO)
+		FROM T_SYS_ROLE
+		<where>
+			ROLE_PID=#{pId}
+		</where>
+	</select>
+	<!-- 根据id 查询角色对象 -->
+	<select id="queryRoleById" resultMap="roleBean" parameterType="java.lang.String">
+		SELECT * FROM T_SYS_ROLE WHERE ROLE_ID=#{roleId}
+	</select>
+	<!-- 根据条件查询组织结构节点 ，若没有查询条件则加载所有的节点 -->
+	<select id="queryAllRoles" resultMap="roleBean" parameterType="java.util.Map">
+		SELECT * FROM T_SYS_ROLE
+		<where>
+			<if test="role_name != null and role_name != '' ">
+				AND ROLE_NAME like CONCAT('%',#{role_name},'%')
+			</if>
+			<if test="role_code != null and role_code != '' ">
+				AND ROLE_CODE like CONCAT('%',#{role_code},'%')
+			</if>
+			<if test="role_pid != null and role_pid != '' ">
+				AND ROLE_PID = #{role_pid}
+			</if>
+		</where>
+		ORDER BY ROLE_LAYER ,ROLE_NO
+	</select>
+	
+	<!-- 根据条件查询角色（关联用户） -->
+	<select id="queryRoleInUser" resultMap="roleBean"
+		parameterType="java.util.Map">
+		SELECT R.* 
+		FROM T_SYS_ROLE R INNER JOIN T_SYS_ROLEUSER RO
+		ON
+		RO.ROLE_ID =R.ROLE_ID
+		INNER JOIN T_SYS_USERS U
+		ON U.USER_ID=RO.USER_ID
+		<where>
+			<if test="userId != null and userId != '' ">
+				AND U.USER_ID =#{userId}
+			</if>
+			<if test="userName != null and userName != '' ">
+				AND R.ROLE_NAME like CONCAT('%',#{roleName},'%')
+			</if>
+			<if test="userCode != null and userCode != '' ">
+				AND R.ROLE_CODE like CONCAT('%',#{roleCode},'%')
+			</if>
+		</where>
+		
+	</select>
+	
+	<!-- 根据条件查询用户（没有关联角色的用户） -->
+	<select id="queryRoleNotInUser" resultMap="roleBean"
+		parameterType="java.util.Map">
+		SELECT R.* FROM T_SYS_ROLE R
+		<where>
+			NOT EXISTS (
+			SELECT RO.* FROM T_SYS_ROLE RO 
+			INNER JOIN T_SYS_ROLEUSER RU ON RO.ROLE_ID=RU.ROLE_ID 
+		    INNER JOIN T_SYS_USERS U ON U.USER_ID=RU.USER_ID
+			<where>
+			R.ROLE_ID=RO.ROLE_ID
+			<if test="userId != null and userId != '' ">
+					AND U.USER_ID =#{userId}
+			</if>
+			</where>
+		)
+			<if test="roleName != null and roleName != '' ">
+				AND RO.ROLE_NAME like CONCAT('%',#{roleName},'%')
+			</if>
+			<if test="roleCode != null and roleCode != '' ">
+				AND RO.ROLE_CODE like CONCAT('%',#{roleCode},'%')
+			</if>
+		</where>
+	</select>
+	
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.RoleProjectMapper">
+	<resultMap type="com.jsumt.vo.system.RoleProjectBean" id="roleProjectBean">
+		<id property="id" column="ID" />
+		<result property="roleId" column="ROLE_ID" />
+		<result property="projectId" column="PROJECT_ID" />
+		<result property="canRead" column="CAN_READ" />
+		<result property="canWrite" column="CAN_WRITE" />
+	</resultMap>
+	<!-- 批量插入数据 -->
+	<insert id="insertQx" parameterType="java.util.List">
+		INSERT INTO T_SYS_ROLEPROJECT (ID,
+		ROLE_ID,PROJECT_ID,CAN_READ,CAN_WRITE)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(#{item.id},
+			#{item.roleId}, #{item.projectId}, #{item.canRead},#{item.canWrite}
+			)
+		</foreach>
+
+	</insert>
+	<!-- 批量更新数据 -->
+	<update id="updateQx" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_SYS_ROLEPROJECT
+			<set>
+				<if test="item.canRead != null and item.canRead != '' ">
+					CAN_READ = #{item.canRead},
+				</if>
+				<if test="item.canWrite != null and item.canWrite != '' ">
+					CAN_WRITE = #{item.canWrite},
+				</if>
+			</set>
+			where ROLE_ID = #{item.roleId} AND
+			PROJECT_ID=#{item.projectId}
+		</foreach>
+	</update>
+
+
+	<!-- 根据muenId和projectId查询数据是否存在 -->
+	<select id="roleProjectIsExist" parameterType="java.util.Map"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM T_SYS_ROLEPROJECT
+		<where>
+			ROLE_ID =#{roleId} AND PROJECT_ID=#{projectId}
+		</where>
+	</select>
+
+
+
+	<!-- 查询该角色所拥有的RoleProject -->
+	<select id="queryRoleProjectByRoleId" resultMap="roleProjectBean"
+		parameterType="java.lang.String">
+		select * from T_SYS_ROLEPROJECT t where t.ROLE_ID=#{roleId};
+	</select>
+
+
+	<!-- 根据projectId删除 -->
+	<delete id="deleteRoleProjectByProjectId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEPROJECT
+		<where>
+			PROJECT_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 根据role_id删除T_SYS_ROLEPROJECT -->
+	<delete id="deleteRoleProjectByRoleId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEPROJECT
+		<where>
+			ROLE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="4" passed="4">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="3079" started-at="2017-06-15T08:29:16Z" finished-at="2017-06-15T08:29:19Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="3079" started-at="2017-06-15T08:29:16Z" finished-at="2017-06-15T08:29:19Z">
+      <class name="com.jsumt.tyfw.test.TyfwTest">
+        <test-method status="PASS" signature="init()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="init" is-config="true" duration-ms="7" started-at="2017-06-15T16:29:16Z" finished-at="2017-06-15T16:29:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- init -->
+        <test-method status="PASS" signature="springTestContextBeforeTestClass()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextBeforeTestClass" is-config="true" duration-ms="1" started-at="2017-06-15T16:29:16Z" finished-at="2017-06-15T16:29:16Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestClass -->
+        <test-method status="PASS" signature="springTestContextPrepareTestInstance()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextPrepareTestInstance" is-config="true" duration-ms="2103" started-at="2017-06-15T16:29:16Z" depends-on-methods="org.springframework.test.context.testng.AbstractTestNGSpringContextTests.springTestContextBeforeTestClass" finished-at="2017-06-15T16:29:18Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextPrepareTestInstance -->
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="0" started-at="2017-06-15T16:29:18Z" finished-at="2017-06-15T16:29:18Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgComanysByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="selectOrgComanysByUserNameTest()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="selectOrgComanysByUserNameTest" duration-ms="831" started-at="2017-06-15T16:29:18Z" finished-at="2017-06-15T16:29:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectOrgComanysByUserNameTest -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="1" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgComanysByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="1" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgDeptByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="selectOrgDeptByUserNameTest()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="selectOrgDeptByUserNameTest" duration-ms="66" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectOrgDeptByUserNameTest -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="1" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgDeptByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="0" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgPeopleByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="selectOrgPeopleByUserNameTest()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="selectOrgPeopleByUserNameTest" duration-ms="39" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectOrgPeopleByUserNameTest -->
+        <test-method status="PASS" signature="springTestContextBeforeTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextBeforeTestMethod" is-config="true" duration-ms="1" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOsMenuTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextBeforeTestMethod -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="0" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOrgPeopleByUserNameTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="selectOsMenuTest()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="selectOsMenuTest" duration-ms="19" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- selectOsMenuTest -->
+        <test-method status="PASS" signature="springTestContextAfterTestMethod(java.lang.reflect.Method)[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextAfterTestMethod" is-config="true" duration-ms="0" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.jsumt.tyfw.test.TyfwTest.selectOsMenuTest()]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestMethod -->
+        <test-method status="PASS" signature="springTestContextAfterTestClass()[pri:0, instance:com.jsumt.tyfw.test.TyfwTest@7f776aaf]" name="springTestContextAfterTestClass" is-config="true" duration-ms="0" started-at="2017-06-15T16:29:19Z" finished-at="2017-06-15T16:29:19Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- springTestContextAfterTestClass -->
+      </class> <!-- com.jsumt.tyfw.test.TyfwTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

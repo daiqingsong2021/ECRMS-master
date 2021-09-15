@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache"
+
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd 
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd 
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/beans/spring-beans.xsdhttp://www.springframework.org/schema/cache 
+        http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+	<description>Spring公共配置</description>
+
+	<!-- 加载Properties文件 -->
+	<context:property-placeholder
+		location="classpath:config.properties,classpath:jdbc.properties"
+		ignore-unresolvable="true" />
+
+
+	<context:component-scan base-package="com.jsumt.*">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	
+	 <!--使用数据库连接池注册数据源,引入相关的配置文件 -->
+    <import resource="c3p0.xml"/>
+
+	<!-- 数据源配置 -->
+<!-- 	<bean id="dataSource" class="org.logicalcobwebs.proxool.ProxoolDataSource"> -->
+<!-- 		<property name="driver" value="${jdbc.driver}" /> -->
+<!-- 		<property name="driverUrl" value="${jdbc.url}" /> -->
+<!-- 		<property name="user" value="${jdbc.username}" /> -->
+<!-- 		<property name="password" value="${jdbc.password}" /> -->
+		<!-- 最少保持的空闲连接数（默认2个） -->
+<!-- 		<property name="prototypeCount" value="2" /> -->
+		<!-- proxool自动侦察各个连接状态的时间间隔(毫秒),侦察到空闲的连接就马上回收,超时的销毁默认30秒） -->
+<!-- 		<property name="houseKeepingSleepTime" value="20000" /> -->
+		<!-- 最大活动时间(超过此时间线程将被kill,默认为5分钟) -->
+<!-- 		<property name="maximumActiveTime" value="900000" /> -->
+		<!-- 连接最长时间(默认为4个小时) -->
+<!-- 		<property name="maximumConnectionLifetime" value="30" /> -->
+		<!-- 最小连接数（默认2个） -->
+<!-- 		<property name="minimumConnectionCount" value="10" /> -->
+		<!-- 最大连接数（默认5个） -->
+<!-- 		<property name="maximumConnectionCount" value="30" /> -->
+		<!-- 同时最大连接数 -->
+<!-- 		<property name="simultaneousBuildThrottle" value="10" /> -->
+<!-- 	</bean> -->
+
+	<!-- MyBatis配置 -->
+	<bean id="sqlSessionFactory" class="com.jsumt.common.FixedSqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 显式指定Mapper文件位置 -->
+		<property name="mapperLocations" value="classpath*:/mybatis/*/*Mapper.xml" />
+		<!-- mybatis配置文件路径 -->
+		<property name="configLocation" value="classpath:myBatisConfig.xml" />
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate"
+		scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- 扫描basePackage接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 映射器接口文件的包路径， -->
+		<property name="basePackage" value="com.jsumt.mapper" />
+	</bean>
+
+	<!--事务处理配置 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 需要引入tx的命名空间 这是事务通知操作，使用的事务管理器引用自 transactionManager -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 指定哪些方法需要加入事务，这里懒惰一下全部加入，可以使用通配符来只加入需要的方法 -->
+			<tx:method name="save*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />
+			<tx:method name="add*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />
+			<tx:method name="insert*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />			
+			<tx:method name="del*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />
+			<tx:method name="update*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />
+			<tx:method name="edit*" isolation="READ_COMMITTED"
+				propagation="REQUIRED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 需要引入aop的命名空间 -->
+	<aop:config>
+		<!-- 切入点指明了在所有方法产生事务拦截操作 -->
+		<aop:pointcut id="servicesPointcut"
+			expression="execution(* com.jsumt.service.*.*.*(..))" />
+		<!-- 定义了将采用何种拦截操作，这里引用到 txAdvice -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="servicesPointcut" />
+	</aop:config>
+
+	<!-- 支持使用annotation定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!-- quartz定时器 -->
+	<import resource="quartz.xml"/>
+</beans>

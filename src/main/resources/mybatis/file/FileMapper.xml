@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.file.FileMapper">
+	<resultMap type="com.jsumt.vo.file.FileBean" id="fileBean">
+		<id property="id" column="ID" />
+		<result property="fileUrl" column="FILE_URL" />
+		<result property="scry" column="SCRY" />
+		<result property="scryName" column="SCRYNAME" />
+		<result property="bussinessId" column="BUSSINESS_ID" />
+		<result property="no" column="NO" />
+		<result property="fileType" column="FILE_TYPE" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="orgId" column="ORG_ID" />
+		<result property="orgName" column="ORG_NAME" />
+		<result property="fileName" column="FILE_NAME" />
+		<result property="status" column="STATUS" />
+		<result property="fileCatalog" column="FILE_CATALOG" />
+		<result property="fileLx" column="FILE_LX" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.file.FileDowRecordBean" id="fileDowRecordBean">
+		<id property="id" column="ID" />
+		<result property="fileId" column="FILE_ID" />
+		<result property="userCode" column="USER_CODE" />
+		<result property="userName" column="USER_NAME" />
+		<result property="orgName" column="ORG_NAME" />
+		<result property="roleName" column="ROLE_NAME" />
+		<result property="downNums" column="DOWNUMS" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.file.FileNewBean" id="fileNewBean">
+		<id property="id" column="ID" />
+		<result property="fileUrl" column="FILE_URL" />
+		<result property="scry" column="SCRY" />
+		<result property="scryName" column="SCRYNAME" />
+		<result property="fileType" column="FILE_TYPE" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="fileName" column="FILE_NAME" />
+		<result property="status" column="STATUS" />
+		<result property="fileCatalog" column="FILE_CATALOG" />
+		<result property="fileLx" column="FILE_LX" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.file.BizFileBean" id="bizFileBean">
+		<id property="id" column="ID" />
+		<result property="fileId" column="FILE_ID" />
+		<result property="bizId" column="BIZ_ID" />
+	</resultMap>
+
+	<!-- 根据条件查询所有文件 -->
+	<select id="queryAllFiles" resultMap="fileBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_FILE
+		<where>
+			<if test="fileCatalog != null and fileCatalog != '' ">
+				AND FILE_CATALOG = #{fileCatalog}
+			</if>
+			<if test="startDate != null and startDate != '' ">
+				AND CREATE_TIME  <![CDATA[  >= ]]>
+				str_to_date(#{startDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endDate != null and endDate != '' ">
+				AND CREATE_TIME  <![CDATA[  <= ]]>
+				str_to_date(#{endDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="fileType != null and fileType != '' ">
+				AND FILE_TYPE = #{fileType}
+			</if>
+			<if test="orgId != null and orgId != '' ">
+				AND ORG_ID = #{orgId}
+			</if>
+			<if test="fileName != null and fileName != '' ">
+				AND FILE_NAME like CONCAT('%',#{fileName},'%')
+			</if>
+			<if test="status != null and status != '' ">
+				AND STATUS IN
+				<foreach collection="status" item="item" open="(" separator=","
+					close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="bussinessId != null and bussinessId != '' ">
+				AND BUSSINESS_ID in (#{bussinessId})
+			</if>
+			<if test="bussinessIds != null">
+				AND BUSSINESS_ID IN
+				<foreach collection="bussinessIds" item="item" open="(" separator=","
+						 close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		ORDER BY FILE_CATALOG,FILE_TYPE,CREATE_TIME DESC
+	</select>
+
+	<!-- 查询最大序号 -->
+	<select id="queryMaxNo" parameterType="java.util.Map"
+		resultType="java.lang.String">
+		select MAX(NO)
+		from T_AZ_FILE
+		where FILE_CATALOG =
+		#{fileCatalog,jdbcType=VARCHAR} AND FILE_TYPE= #{fileType}
+	</select>
+
+	<!-- 新增文件 -->
+	<insert id="saveFile" parameterType="com.jsumt.vo.file.FileBean">
+		INSERT INTO
+		T_AZ_FILE(ID,FILE_URL,SCRY,SCRYNAME,BUSSINESS_ID,NO,FILE_TYPE,CREATE_TIME,UPDATE_TIME,ORG_ID,ORG_NAME,FILE_NAME,STATUS,FILE_CATALOG,FILE_LX)
+		VALUES(
+		#{id},#{fileUrl},#{scry},#{scryName},#{bussinessId},#{no},
+		#{fileType},#{createTime},#{updateTime},#{orgId},#{orgName},#{fileName},#{status},#{fileCatalog},#{fileLx}
+		)
+	</insert>
+
+
+	<insert id="saveNewFile" parameterType="com.jsumt.vo.file.FileNewBean">
+		INSERT INTO
+		t_az_newfile(ID,FILE_URL,SCRY,SCRYNAME,FILE_TYPE,CREATE_TIME,UPDATE_TIME,FILE_NAME,STATUS,FILE_CATALOG,FILE_LX)
+		VALUES(
+		#{id},#{fileUrl},#{scry},#{scryName},
+		#{fileType},#{createTime},#{updateTime},#{fileName},#{status},#{fileCatalog},#{fileLx}
+		)
+	</insert>
+
+	<insert id="saveBindBussFile" parameterType="com.jsumt.vo.file.BizFileBean">
+		INSERT INTO
+		t_az_bizfile(ID,FILE_ID,BIZ_ID)
+		VALUES(
+		#{id},#{fileId},#{bizId}
+		)
+	</insert>
+
+	<delete id="delNewFiles" parameterType="java.util.List">
+		DELETE FROM t_az_newfile
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+					 separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<delete id="delBussFileByFileIds" parameterType="java.util.List">
+		DELETE FROM t_az_bizfile
+		<where>
+			FILE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+					 separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<delete id="delBussFileByBizIds" parameterType="java.util.List">
+		DELETE FROM t_az_bizfile
+		<where>
+			BIZ_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+					 separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 根据id删除文件 -->
+	<delete id="delFiles" parameterType="java.util.List">
+		DELETE FROM T_AZ_FILE
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 根据id修改文件状态 -->
+	<update id="updateFiles" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_AZ_FILE
+			<set>
+				<if test="item.status != null and item.status != '' ">
+					STATUS = #{item.status},
+				</if>
+				UPDATE_TIME=now(),
+			</set>
+			where ID=#{item.id}
+		</foreach>
+	</update>
+
+	<update id="updateFile" parameterType="com.jsumt.vo.file.FileBean">
+		UPDATE T_AZ_FILE
+		<set>
+			<if test="status != null and status != '' ">
+				STATUS = #{status},
+			</if>
+			<if test="fileName != null and fileName != '' ">
+				FILE_NAME = #{fileName},
+			</if>
+			<if test="fileUrl != null and fileUrl != '' ">
+				FILE_URL = #{fileUrl},
+			</if>
+			<if test="fileLx != null and fileLx != '' ">
+				FILE_LX = #{fileLx},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		where ID=#{id}
+	</update>
+
+	<!-- 根据id查询单个文件 -->
+	<select id="queryFileById" resultMap="fileBean" parameterType="java.lang.String">
+		SELECT * FROM T_AZ_FILE
+		<where>
+			AND ID=#{id}
+		</where>
+	</select>
+
+	<select id="queryAllFilesByBussinessIds" resultMap="fileBean"
+		parameterType="java.util.List">
+		SELECT * FROM T_AZ_FILE T
+		<where>
+			T.BUSSINESS_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</select>
+
+
+	<select id="queryFileDowRecoed" resultMap="fileDowRecordBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_FILEDOW_RECORD
+		<where>
+			USER_CODE
+		  = #{userCode} AND FILE_ID= #{fileId}
+		</where>
+	</select>
+
+	<update id="updateFileDowRecord" parameterType="com.jsumt.vo.file.FileDowRecordBean">
+		UPDATE T_AZ_FILEDOW_RECORD
+			<set>
+				DOWNUMS=#{downNums},UPDATE_TIME=now(),
+			</set>
+			where ID=#{id}
+	</update>
+
+	<insert id="saveFileDowRecoed" parameterType="com.jsumt.vo.file.FileDowRecordBean">
+		INSERT INTO
+		T_AZ_FILEDOW_RECORD(ID,FILE_ID,USER_NAME,ORG_NAME,ROLE_NAME,USER_CODE,DOWNUMS,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		#{id},#{fileId},#{userName},#{orgName},#{roleName},#{userCode},
+		#{downNums},#{createTime},#{updateTime}
+		)
+	</insert>
+
+	<select id="queryFileDowRecords" resultMap="fileDowRecordBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_FILEDOW_RECORD
+		<where>
+			<if test="fileId != null and fileId != '' ">
+				AND FILE_ID = #{fileId}
+			</if>
+		</where>
+		ORDER BY UPDATE_TIME DESC
+	</select>
+
+	<delete id="delFileDowRecord" parameterType="java.util.List">
+		DELETE FROM T_AZ_FILEDOW_RECORD
+		<where>
+			FILE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<select id="queryNewFileByIds" resultMap="fileNewBean">
+		SELECT * FROM t_az_newfile
+		<where>
+			ID IN
+			<foreach collection="fileIds" item="id" open="(" close=")"
+					 separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</select>
+
+	<select id="queryBizFileBeanByBizId" resultMap="bizFileBean" parameterType="java.lang.String">
+		SELECT * FROM t_az_bizfile
+		<where>
+			AND BIZ_ID=#{id}
+		</where>
+	</select>
+
+	<select id="queryBizFileBeanByBizIds" resultMap="bizFileBean">
+		SELECT * FROM t_az_bizfile
+		<where>
+			<if test="bizIds != null ">
+				BIZ_ID IN
+				<foreach collection="bizIds" item="id" open="(" close=")"
+						 separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
+	<delete id="deleteBizFileBeanByBizIds">
+		delete FROM t_az_bizfile
+		<where>
+			<if test="bizIds != null ">
+				BIZ_ID IN
+				<foreach collection="bizIds" item="id" open="(" close=")"
+						 separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+</mapper>

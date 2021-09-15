@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.MenuMapper">
+	<resultMap type="com.jsumt.vo.system.MenuBean" id="menuBean">
+		<id property="menu_id" column="MENU_ID" />
+		<result property="menu_pid" column="MENU_PID" />
+		<result property="menu_code" column="MENU_CODE" />
+		<result property="menu_name" column="MENU_NAME" />
+		<result property="menu_spread" column="MENU_SPREAD" />
+		<result property="menu_layer" column="MENU_LAYER" />
+		<result property="menu_no" column="MENU_NO" />
+		<result property="menu_url" column="MENU_URL" />
+		<result property="remark" column="REMARK" />
+		<result property="module_code" column="MODULE_CODE" />
+		<result property="isLeaf" column="IS_LEAF" />
+		<result property="iconCls" column="ICONCLS" />
+		<result property="menuIcon" column="MENU_ICON" />
+	</resultMap>
+
+	<!-- 查询多个模块下的菜单id -->
+	<select id="queryMenusInModules" parameterType="java.util.List"
+		resultType="java.lang.String">
+		SELECT MENU_ID from T_SYS_MENU
+		WHERE MENU_PID ='0' AND MODULE_CODE IN
+		(select MODULE_CODE from
+		t_sys_module where MODULE_id IN
+		<foreach collection="list" item="map" open="(" close=")"
+			separator=",">
+			#{map.moduleId}
+		</foreach>
+		)
+	</select>
+
+	<!-- 根据条件查询组织结构节点 ，若没有查询条件则加载所有的节点 -->
+	<select id="queryAllMenus" resultMap="menuBean" parameterType="java.util.Map">
+		SELECT * FROM T_SYS_MENU
+		<where>
+			<if test="menu_code != null and menu_code != '' ">
+				AND MENU_CODE like CONCAT('%',#{menu_code},'%')
+			</if>
+			<if test="menu_name != null and menu_name != '' ">
+				AND MENU_NAME like CONCAT('%',#{menu_name},'%')
+			</if>
+			<if test="module_code != null and module_code != '' ">
+				AND MODULE_CODE = #{module_code}
+			</if>
+			<if test="menu_pid != null and menu_pid != '' ">
+				AND MENU_PID = #{menu_pid}
+			</if>
+			<if test="isLeaf != null and isLeaf != '' ">
+				AND IS_LEAF = #{isLeaf}
+			</if>
+		</where>
+		ORDER BY MENU_LAYER,MENU_NO
+	</select>
+
+
+
+	<!-- 用用户表插入数据 -->
+	<insert id="addPMuenu" parameterType="com.jsumt.vo.system.MenuBean">
+		INSERT INTO T_SYS_MENU
+		(MENU_ID,MENU_PID,MENU_CODE,MENU_NAME,MENU_SPREAD,MENU_LAYER,
+		MENU_NO,ICONCLS,MENU_URL,REMARK,MODULE_CODE,IS_LEAF,MENU_ICON)
+		VALUES(
+		#{menu_id},#{menu_pid},#{menu_code},#{menu_name},
+		#{menu_spread},#{menu_layer},#{menu_no},#{iconCls},#{menu_url},#{remark},#{module_code},#{isLeaf},#{menuIcon}
+		)
+	</insert>
+
+	<!-- 根据主键查询对象 -->
+	<select id="queryMenuById" parameterType="java.lang.String"
+		resultMap="menuBean">
+		SELECT * FROM T_SYS_MENU WHERE MENU_ID = #{id}
+	</select>
+
+	<!-- 根据主键更新 -->
+	<update id="updateMenu" parameterType="com.jsumt.vo.system.MenuBean">
+		UPDATE T_SYS_MENU
+		<set>
+			<if test="menu_pid != null and menu_pid != '' ">
+				MENU_PID=#{menu_pid},
+			</if>
+			<if test="menu_code != null and menu_code != '' ">
+				MENU_CODE=#{menu_code},
+			</if>
+			<if test="menu_name != null and menu_name != '' ">
+				MENU_NAME=#{menu_name},
+			</if>
+			<if test="menu_spread != null and menu_spread != '' ">
+				MENU_SPREAD=#{menu_spread},
+			</if>
+			<if test="menu_layer != null and menu_layer != '' ">
+				MENU_LAYER=#{menu_layer},
+			</if>
+
+			<if test="menu_no != null and menu_no != '' ">
+				MENU_NO=#{menu_no},
+			</if>
+			<if test="iconCls != null and iconCls != '' ">
+				ICONCLS=#{iconCls},
+			</if>
+			<if test="menu_url != null and menu_url != '' ">
+				MENU_URL=#{menu_url},
+			</if>
+			<if test="remark != null">
+				REMARK=#{remark},
+			</if>
+			<if test="isLeaf != null and isLeaf != '' ">
+				IS_LEAF=#{isLeaf},
+			</if>
+
+			<if test="menuIcon != null">
+				MENU_ICON=#{menuIcon},
+			</if>
+			<if test="module_code != null and module_code != '' ">
+				MODULE_CODE=#{module_code},
+			</if>
+		</set>
+		<where>
+			<if test="menu_id !=null and menu_id !='' ">
+			MENU_ID=#{menu_id}
+			</if>
+		</where>
+	</update>
+
+	<!-- 根据menu_id删除 -->
+	<delete id="deleteByPrimaryKey" parameterType="java.util.List">
+		DELETE FROM T_SYS_MENU
+		<where>
+			MENU_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+
+
+
+	<select id="queryMaxNo" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		SELECT MAX(MENU_NO)
+		FROM T_SYS_MENU
+		<where>
+			MENU_PID=#{pId}
+		</where>
+	</select>
+</mapper>

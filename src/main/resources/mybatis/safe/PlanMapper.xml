@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.safe.PlanMapper">
+	<resultMap type="com.jsumt.vo.safe.TypeBean" id="typeBean">
+		<id property="id" column="ID" />
+		<result property="is_one" column="IS_ONE" />
+		<result property="title" column="TITLE" />
+		<result property="id_one" column="ID_ONE" />
+		<result property="order_no" column="ORDER_NO" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.safe.PlanBean" id="planBean">
+		<id property="id" column="ID" />
+		<result property="tbdw" column="TBDW" />
+		<result property="tbdwid" column="TBDWID" />
+		<result property="tbr" column="TBR" />
+		<result property="year" column="YEAR" />
+		<result property="month" column="MONTH" />
+		<result property="status" column="STATUS" />
+		<result property="plan_total" column="PLAN_TOTAL" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="parent_id" column="PARENT_ID" />
+		<result property="title" column="TITLE" />
+		<result property="org_id" column="ORG_ID" />
+		<result property="type" column="TYPE" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.safe.DetailBean" id="DetailBean">
+		<id property="id" column="ID" />
+		<result property="sctr_type_id1" column="SCTR_TYPE_ID1" />
+		<result property="sctr_type_title1" column="SCTR_TYPE_TITLE1" />
+		<result property="sctr_type_id2" column="SCTR_TYPE_ID2" />
+		<result property="sctr_type_title2" column="SCTR_TYPE_TITLE2" />
+		<result property="plan_sum" column="PLAN_SUM" />
+		<result property="bdw_plan" column="BDW_PLAN" />
+		<result property="fbdw_plan_sum" column="FBDW_PLAN_SUM" />
+		<result property="finish_sum" column="FINISH_SUM" />
+		<result property="bdw_finish" column="BDW_FINISH" />
+		<result property="fbdw_finish_sum" column="FBDW_FINISH_SUM" />
+		<result property="fypc" column="FYPC" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="plan_id" column="PLAN_ID" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.system.OrganizationBean" id="Organization">
+		<id property="org_id" column="ORG_ID" />
+		<result property="org_pid" column="ORG_PID" />
+		<result property="name_cn" column="NAME_CN" />
+		<result property="name_cn_simple" column="NAME_CN_SIMPLE" />
+		<result property="name_en" column="NAME_EN" />
+		<result property="name_en_simple" column="NAME_EN_SIMPLE" />
+		<result property="name_spell" column="NAME_SPELL" />
+		<result property="class_id" column="CLASS_ID" />
+		<result property="type_id" column="TYPE_ID" />
+		<result property="grade_id" column="GRADE_ID" />
+		<result property="link_man" column="LINK_MAN" />
+		<result property="link_tel" column="LINK_TEL" />
+		<result property="fax" column="FAX" />
+		<result property="org_addr" column="ORG_ADDR" />
+		<result property="remark" column="REMARK" />
+		<result property="orgNo" column="ORG_NO" />
+		<result property="orgLayer" column="ORG_LAYER" />
+		<result property="isLeaf" column="IS_LEAF" />
+		<result property="iconCls" column="ICONCLS" />
+	</resultMap>
+	
+	<resultMap type="com.jsumt.vo.safe.AccountBean" id="accountBean">
+		<id property="id" column="ID" />
+		<result property="tbdw" column="TBDW" />
+		<result property="tbdwid" column="TBDWID" />
+		<result property="tbr" column="TBR" />
+		<result property="year" column="YEAR" />
+		<result property="month" column="MONTH" />
+		<result property="status" column="STATUS" />
+		<result property="trjhTotal" column="TRJH_TOTAL" />
+		<result property="trjhTotalFinish" column="TRJH_TOTAL_FINISH" />
+		<result property="trjhFypc" column="TRJH_FYPC" />
+		<result property="parentId" column="PARENT_ID" />
+		<result property="planId" column="PLAN_ID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	
+	<!-- 安全生产投入类别表的相关增删改查********************************************************** -->
+	<!-- 根据id查询附表安全生产投入类别信息 -->
+	<select id="queryAllTypes" resultMap="typeBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_JHLB
+		<where>
+			<if test="id !=null and id !='' ">
+				AND ID = #{id}
+			</if>
+			<if test="is_one !=null and is_one !='' ">
+				AND IS_ONE = #{is_one}
+			</if>
+		</where>
+		order by ORDER_NO
+	</select>
+	<!-- 安全生产投入表的相关增删改查********************************************************** -->
+	<select id="queryAllPlans" resultMap="planBean" parameterType="java.util.Map">
+		SELECT a.* FROM T_AZ_AQPLAN a
+		<where>
+			<if test="year !=null and year !='' ">
+				AND YEAR = #{year}
+			</if>
+			<if test="month !=null and month !='' ">
+				AND MONTH = #{month}
+			</if>
+			<if test="type !=null and type !='' ">
+				AND TYPE = #{type}
+			</if>
+			<if test="tbdwid !=null and tbdwid !='' ">
+				AND TBDWID = #{tbdwid}
+			</if>
+			<if test="parent_id !=null and parent_id !='' ">
+				AND PARENT_ID = #{parent_id}
+			</if>
+			<if test="dwmc != null and dwmc != '' ">
+				AND A.TBDW like CONCAT('%',#{dwmc},'%')
+			</if>
+			<if test="status !=null and status !='' ">
+				AND STATUS = #{status}
+			</if>
+			<if test="id != null and id != '' ">
+				AND ID = #{id}
+			</if>
+		</where>
+		ORDER BY a.UPDATE_TIME DESC
+	</select>
+	<!-- 新增生产计划 -->
+	<insert id="addPlan" parameterType="com.jsumt.vo.safe.PlanBean">
+		INSERT INTO
+		T_AZ_AQPLAN(ID,TBDW,TBDWID,TBR,YEAR,MONTH,STATUS,PLAN_TOTAL,CREATE_TIME,
+		UPDATE_TIME,PARENT_ID,TITLE,ORG_ID,TYPE)
+		VALUES(
+		#{id},#{tbdw},#{tbdwid},#{tbr},#{year},#{month},#{status},#{plan_total},#{createTime},
+		#{updateTime},#{parent_id},#{title},#{org_id},#{type})
+	</insert>
+	<!-- 修改安全生产计划表的发布状态 -->
+	<update id="updatePlan" parameterType="com.jsumt.vo.safe.PlanBean">
+		UPDATE T_AZ_AQPLAN
+		<set>
+			<if test="status != null and status != '' ">
+				STATUS = #{status},
+			</if>
+			<if test="plan_total != null and plan_total != '' ">
+				PLAN_TOTAL = #{plan_total},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID = #{id}
+		</where>
+	</update>
+	
+	<!-- 根据id删除安全生产投入计划的delPlans -->
+	<delete id="delPlans" parameterType="java.util.List">
+		DELETE FROM T_AZ_AQPLAN
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 查询没有被分配的子单位 -->
+	<select id="queryNotChildrenPlans" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		A.ORG_ID,
+		A.NAME_CN AS DWMC,
+		B.YEAR AS YEAR,
+		B.ID AS CID,
+		B.MONTH AS MONTH,
+		B.TBR AS TBR,
+		B.PLAN_TOTAL AS PLAN_TOTAL,
+		B.CREATE_TIME AS CREATETIME,
+		B.PARENT_ID AS PARENT_ID,
+		B.STATUS AS STATUS
+		FROM
+		T_SYS_ORG A
+		LEFT JOIN (SELECT * FROM T_AZ_AQPLAN C 
+		<where>
+			AND C.PARENT_ID ='0' 
+			AND C.TYPE = #{type} 
+			AND C.YEAR =#{year} 
+			<if test='type == "M"'>
+			 AND C.MONTH =#{month} 
+			</if>
+		</where>
+		) B ON A.ORG_ID = B.TBDWID
+		<where>
+		AND A.ORG_PID = #{org_pid}  
+		<if test="dwmc != null and dwmc != '' ">
+			AND A.NAME_CN like CONCAT('%',#{dwmc},'%') 
+		</if>
+		AND NOT EXISTS (SELECT 1 from T_AZ_AQPLAN D where D.PARENT_ID=#{planId} AND A.ORG_ID=D.TBDWID)
+		</where>
+		ORDER BY A.ORG_NO ASC
+	</select>
+	<!-- 修改计划表子单位的parent_id为0 -->
+	<update id="updatePidToZero" parameterType="java.util.List">
+		UPDATE T_AZ_AQPLAN
+		<set>
+				PARENT_ID = '0',
+				UPDATE_TIME=now()
+		</set>
+		<where>
+			PARENT_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</update>
+	
+	<!-- 根据id查询安全生产投入计划 -->
+	<select id="queryOneById" resultMap="planBean" parameterType="java.lang.String">
+		SELECT * FROM T_AZ_AQPLAN
+		<where>
+			AND ID=#{id}
+		</where>
+	</select>
+
+	<!-- 新增生产计划细项相关增删改查********************************************************** -->
+	<insert id="addDetailList" parameterType="java.util.List">
+		INSERT INTO
+		T_AZ_SCTR_DETAIL(ID,SCTR_TYPE_ID1,SCTR_TYPE_TITLE1,SCTR_TYPE_ID2,SCTR_TYPE_TITLE2,
+		PLAN_SUM,BDW_PLAN,FBDW_PLAN_SUM,FINISH_SUM,BDW_FINISH,FBDW_FINISH_SUM,FYPC,PLAN_ID,
+		CREATE_TIME,UPDATE_TIME)
+		VALUES
+		<foreach collection="list" item="item" separator="," index="index">
+			(
+			#{item.id},#{item.sctr_type_id1},#{item.sctr_type_title1},#{item.sctr_type_id2},
+			#{item.sctr_type_title2},#{item.plan_sum},#{item.bdw_plan},#{item.fbdw_plan_sum},
+			#{item.finish_sum},#{item.bdw_finish},#{item.fbdw_finish_sum},
+			#{item.fypc},#{item.plan_id},#{item.createTime},#{item.updateTime}
+			)
+		</foreach>
+	</insert>
+	<!-- delDetailPlans -->
+	<!-- 根据id删除安全生产投入计划的delPlans -->
+	<delete id="delDetailPlans" parameterType="java.util.List">
+		DELETE FROM T_AZ_SCTR_DETAIL
+		<where>
+			PLAN_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<select id="queryDetails" resultMap="DetailBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_SCTR_DETAIL
+		<where>
+			<if test="id !=null and id !='' ">
+				AND ID = #{id}
+			</if>
+			<if test="sctr_type_id2 !=null and sctr_type_id2 !='' ">
+				AND SCTR_TYPE_ID2 = #{sctr_type_id2}
+			</if>
+			<if test="plan_id !=null and plan_id !='' ">
+				AND PLAN_ID = #{plan_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryPlanDetailInfo" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT A.*, C.BDW_PLAN,C.FBDW_PLAN_SUM,C.PLAN_SUM,C.ID AS DETAILID FROM T_AZ_JHLB A LEFT JOIN (SELECT * FROM T_AZ_SCTR_DETAIL B WHERE B.PLAN_ID=#{planId}) C ON A.ID =C.SCTR_TYPE_ID2
+		ORDER BY A.ORDER_NO
+	</select>
+	
+	 <update id="updateDetailBean" parameterType="com.jsumt.vo.safe.DetailBean">
+		UPDATE T_AZ_SCTR_DETAIL
+		<set>
+			<if test="bdw_plan != null and bdw_plan != '' ">
+				BDW_PLAN = #{bdw_plan},
+			</if>
+			<if test="plan_sum != null and plan_sum != '' ">
+				PLAN_SUM = #{plan_sum},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID = #{id}
+		</where>
+	</update>
+	
+	<select id="queryDetailById" resultMap="DetailBean" parameterType="java.lang.String">
+		SELECT * FROM T_AZ_SCTR_DETAIL
+		<where>
+			AND ID=#{id}
+		</where>
+	</select>
+	
+	<!-- 查询一条计划表数据 -->
+	<select id="queryOnePlan" resultMap="planBean" parameterType="com.jsumt.vo.safe.PlanBean">
+		SELECT * FROM T_AZ_AQPLAN
+		<where>
+			<if test="year!=null and year!='' ">
+				 AND YEAR = #{year}
+			</if>
+			<if test="month!=null and month!='' ">
+				 AND MONTH = #{month}
+			</if>
+			<if test="tbdwid!=null and tbdwid!='' ">
+				 AND TBDWID = #{tbdwid}
+			</if>	
+		</where>
+	</select>
+	
+	<!-- 查询出显示在主页面的图表 queryAqysctrChart-->
+		<select id="queryAqysctrChart" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		A.TBDW,
+  		A.MONTH,
+		A.PLAN_TOTAL AS PLANTOTAL,
+		B.TRJH_TOTAL_FINISH AS FINISHTOTAL
+		FROM
+		T_AZ_AQPLAN A
+		LEFT JOIN (SELECT * FROM T_AZ_AQFINISH C
+		<where>
+			AND C. STATUS = '1'
+			<if test="year != null and year != '' ">
+			AND C.YEAR =#{year} 
+			</if>
+		</where>
+		) B ON A.ID = B.PLAN_ID
+		<where>
+		AND A.TBDWID = #{tbdwid}
+		AND A.TYPE = 'M'  
+		AND A.STATUS = '1'
+		<if test="year != null and year != '' ">
+			AND A.YEAR =#{year} 
+		</if>
+		</where>
+		ORDER BY A.MONTH ASC;
+	</select>
+</mapper>

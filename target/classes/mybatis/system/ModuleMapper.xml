@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.ModuleMapper">
+	<resultMap type="com.jsumt.vo.system.ModuleBean" id="moduleBean">
+		<id property="module_id" column="MODULE_ID" />
+		<result property="module_code" column="MODULE_CODE" />
+		<result property="module_name" column="MODULE_NAME" />
+		<result property="order_no" column="ORDER_NO" />
+		<result property="iconCls" column="ICONCLS" />
+		<result property="moduleIcon" column="MODULE_ICON" />
+		<result property="moduleUrl" column="MODULE_URL" />
+		<result property="moduleSpread" column="MODULE_SPREAD" />
+	</resultMap>
+	<!-- 根据条件查询模块 -->
+	<select id="queryModules" resultMap="moduleBean" parameterType="java.util.Map">
+		select *
+		from T_SYS_MODULE
+		<where>
+			<if test="moduleName != null and moduleName != '' ">
+				AND MODULE_NAME like CONCAT('%',#{moduleName},'%')
+			</if>
+			<if test="moduleCode != null and moduleCode != '' ">
+				AND MODULE_CODE like CONCAT('%',#{moduleCode},'%')
+			</if>
+		</where>
+		ORDER BY ORDER_NO
+	</select>
+	<!-- 模块表插入数据 -->
+	<insert id="addModule" parameterType="com.jsumt.vo.system.ModuleBean">
+		INSERT INTO T_SYS_MODULE
+		(MODULE_ID,MODULE_CODE,MODULE_NAME,ORDER_NO,ICONCLS,MODULE_ICON
+		,MODULE_URL,MODULE_SPREAD)
+		VALUES(
+		#{module_id},#{module_code},#{module_name},#{order_no},#{iconCls},#{moduleIcon}
+		,#{moduleUrl},#{moduleSpread}
+		)
+	</insert>
+	<!--用于生成 新增模块对象的序号 -->
+	<select id="createOrderno" resultType="java.lang.Integer">
+		SELECT CASE WHEN
+		MAX(ORDER_NO)= NULL THEN 1
+		ELSE MAX(ORDER_NO)+1 END AS NEWORDER_NO
+		FROM
+		T_SYS_MODULE
+	</select>
+
+
+
+	<!-- 根据module_id删除用户对象 -->
+	<delete id="delModules" parameterType="java.util.List">
+		DELETE FROM T_SYS_MODULE
+		<where>
+			MODULE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 更新模块对象 -->
+	<update id="updateModule" parameterType="com.jsumt.vo.system.ModuleBean">
+		UPDATE T_SYS_MODULE
+		<set>
+			<if test="module_code != null and module_code != '' ">
+				MODULE_CODE=#{module_code},
+			</if>
+			<if test="module_name != null and module_name != '' ">
+				MODULE_NAME=#{module_name},
+			</if>
+			<if test="order_no != null and order_no != '' ">
+				ORDER_NO=#{order_no},
+			</if>
+			<if test="moduleIcon != null">
+				MODULE_ICON=#{moduleIcon},
+			</if>
+			<if test="moduleUrl != null and moduleUrl != '' ">
+				MODULE_URL=#{moduleUrl},
+			</if>
+			<if test="moduleSpread != null and moduleSpread != '' ">
+				MODULE_SPREAD=#{moduleSpread},
+			</if>
+			<if test="iconCls != null and iconCls != '' ">
+				ICONCLS=#{iconCls},
+			</if>
+		</set>
+		<where>
+			<if test=" module_id !=null and module_id !='' "></if>
+			AND MODULE_ID= #{module_id}
+		</where>
+	</update>
+</mapper>
+
+

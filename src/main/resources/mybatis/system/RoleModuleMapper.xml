@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.RoleModuleMapper">
+	<resultMap type="com.jsumt.vo.system.ModuleBean" id="moduleBean">
+		<id property="module_id" column="MODULE_ID" />
+		<result property="module_code" column="MODULE_CODE" />
+		<result property="module_name" column="MODULE_NAME" />
+		<result property="order_no" column="ORDER_NO" />
+	</resultMap>
+	<resultMap type="com.jsumt.vo.system.RoleModuleBean" id="roleModuleBean">
+		<id property="id" column="ID" />
+		<result property="roleId" column="ROLE_ID" />
+		<result property="moduleId" column="MODULE_ID" />
+		<result property="canRead" column="CAN_READ" />
+		<result property="canWrite" column="CAN_WRITE" />
+	</resultMap>
+	<!-- 插入数据 -->
+	<insert id="insertQx" parameterType="java.util.List">
+		INSERT INTO T_SYS_ROLEMODULE (ID,
+		ROLE_ID,MODULE_ID,CAN_READ,CAN_WRITE)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+			#{item.id},#{item.roleId},#{item.moduleId},
+			#{item.canRead},#{item.canWrite}
+			)
+		</foreach>
+
+	</insert>
+
+	<!-- 更新数据 -->
+	<update id="updateQx" parameterType="java.util.List">
+		<foreach collection="list" separator=";" item="item">
+			UPDATE T_SYS_ROLEMODULE
+			<set>
+				<if test="item.canRead != null and item.canRead != '' ">
+					CAN_READ = #{item.canRead},
+				</if>
+				<if test="item.canWrite != null and item.canWrite != '' ">
+					CAN_WRITE = #{item.canWrite},
+				</if>
+			</set>
+			WHERE ROLE_ID = #{item.roleId} AND MODULE_ID = #{item.moduleId}
+		</foreach>
+	</update>
+
+
+	<!-- 根据muenId和moduleId查询数据是否存在 -->
+	<select id="moduleRoleIsExist" parameterType="java.util.Map"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM T_SYS_ROLEMODULE
+		<where>
+			ROLE_ID =#{roleId} AND MODULE_ID=#{moduleId}
+		</where>
+	</select>
+
+	<!-- 根据module_id删除角色模块对象 -->
+	<delete id="deleteRoleModuleByModuleId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEMODULE
+		<where>
+			MODULE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+
+	<!-- 根据role_id删除角色模块对象 -->
+	<delete id="deleteRMByRoleId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEMODULE
+		<where>
+			ROLE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 删除角色模块表数据 -->
+	<delete id="deleteByFKeys" parameterType="java.util.Map">
+		DELETE FROM
+		T_SYS_ROLEMODULE
+		WHERE ROLE_ID =#{roleId} AND MODULE_ID=#{moduleId}
+	</delete>
+
+	<!-- 向 角色模块表 插入数据 -->
+	<insert id="insertByBean" parameterType="com.jsumt.vo.system.RoleModuleBean">
+		INSERT INTO
+		T_SYS_ROLEMODULE (
+		ID,ROLE_ID,MODULE_ID,CAN_READ,CAN_WRITE
+		) VALUES(
+		#{id},#{roleId},#{moduleId},#{canRead},#{canWrite}
+		)
+	</insert>
+
+
+	<!-- 查询该角色所拥有的模块权限 -->
+	<select id="queryRoleModulesByRoleId" resultMap="roleModuleBean"
+		parameterType="java.lang.String">
+		select * from T_SYS_ROLEMODULE rm where
+		rm.ROLE_ID=#{roleId};
+	</select>
+	<select id="queryModulesByRoleId" resultMap="moduleBean"
+		parameterType="java.lang.String">
+		select * from T_SYS_ROLEMODULE rm where
+		rm.ROLE_ID=#{roleId};
+	</select>
+
+	<select id="queryModulesByRole" resultType="java.util.Map"
+		parameterType="java.util.List">
+		select distinct a.*,b.CAN_READ,b.CAN_WRITE
+		from t_sys_module a inner join T_SYS_ROLEMODULE b
+		on
+		a.MODULE_ID=b.MODULE_ID
+		inner join T_SYS_ROLE c
+		on b.ROLE_ID =c.ROLE_ID
+		<where>
+			c.ROLE_ID in
+			<foreach collection="list" item="role" open="(" close=")"
+				separator=",">
+				#{role.role_id}
+			</foreach>
+		</where>
+		order by a.ORDER_NO
+	</select>
+</mapper>

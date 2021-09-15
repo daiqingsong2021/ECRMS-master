@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.safe.AccountMapper">
+	<resultMap type="com.jsumt.vo.safe.PlanBean" id="planBean">
+		<id property="id" column="ID" />
+		<result property="tbdw" column="TBDW" />
+		<result property="tbdwid" column="TBDWID" />
+		<result property="tbr" column="TBR" />
+		<result property="year" column="YEAR" />
+		<result property="month" column="MONTH" />
+		<result property="status" column="STATUS" />
+		<result property="plan_total" column="PLAN_TOTAL" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="parent_id" column="PARENT_ID" />
+		<result property="title" column="TITLE" />
+		<result property="org_id" column="ORG_ID" />
+		<result property="type" column="TYPE" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.safe.AccountBean" id="accountBean">
+		<id property="id" column="ID" />
+		<result property="tbdw" column="TBDW" />
+		<result property="tbdwid" column="TBDWID" />
+		<result property="tbr" column="TBR" />
+		<result property="year" column="YEAR" />
+		<result property="month" column="MONTH" />
+		<result property="status" column="STATUS" />
+		<result property="trjhTotal" column="TRJH_TOTAL" />
+		<result property="trjhTotalFinish" column="TRJH_TOTAL_FINISH" />
+		<result property="trjhFypc" column="TRJH_FYPC" />
+		<result property="parentId" column="PARENT_ID" />
+		<result property="planId" column="PLAN_ID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+
+	<resultMap type="com.jsumt.vo.safe.DetailAccountBean" id="detailAccountBean">
+		<id property="id" column="ID" />
+		<result property="useDw" column="USE_DW" />
+		<result property="content" column="CONTENT" />
+		<result property="fpsl" column="FPSL" />
+		<result property="je" column="JE" />
+		<result property="sctrTypeId1" column="SCTR_TYPE_ID1" />
+		<result property="sctrTypeTitle1" column="SCTR_TYPE_TITLE1" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="rzrq" column="RZRQ" />
+		<result property="pzh" column="PZH" />
+		<result property="remark" column="REMARK" />
+		<result property="tzId" column="TZ_ID" />
+	</resultMap>
+	
+	<resultMap type="com.jsumt.vo.safe.DetailBean" id="detailBean">
+		<id property="id" column="ID" />
+		<result property="sctr_type_id1" column="SCTR_TYPE_ID1" />
+		<result property="sctr_type_title1" column="SCTR_TYPE_TITLE1" />
+		<result property="sctr_type_id2" column="SCTR_TYPE_ID2" />
+		<result property="sctr_type_title2" column="SCTR_TYPE_TITLE2" />
+		<result property="plan_sum" column="PLAN_SUM" />
+		<result property="bdw_plan" column="BDW_PLAN" />
+		<result property="fbdw_plan_sum" column="FBDW_PLAN_SUM" />
+		<result property="finish_sum" column="FINISH_SUM" />
+		<result property="bdw_finish" column="BDW_FINISH" />
+		<result property="fbdw_finish_sum" column="FBDW_FINISH_SUM" />
+		<result property="fypc" column="FYPC" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+		<result property="plan_id" column="PLAN_ID" />
+	</resultMap>
+	
+	<!-- 查询所有台账********************************************************** -->
+	<select id="queryAllTzs" resultMap="accountBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_AQFINISH
+		<where>
+			<if test="year !=null and year !='' ">
+				AND YEAR = #{year}
+			</if>
+			<if test="month !=null and month !='' ">
+				AND MONTH = #{month}
+			</if>
+			<if test="tbdwid !=null and tbdwid !='' ">
+				AND TBDWID = #{tbdwid}
+			</if>
+			<if test="parent_id !=null and parent_id !='' ">
+				AND PARENT_ID = #{parent_id}
+			</if>
+			<if test="dwmc != null and dwmc != '' ">
+				AND TBDW like CONCAT('%',#{dwmc},'%')
+			</if>
+			<if test="id != null and id != '' ">
+				AND ID =#{id}
+			</if>
+		</where>
+		order by CREATE_TIME
+	</select>
+	<!-- 查询没有被分配的生产投入台账 -->
+	<select id="queryScjhtzNotInBatch" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		A.* FROM
+		T_AZ_AQPLAN A
+	    <where>
+	   		AND A.TYPE = 'M'
+	   		AND A.STATUS = '1'
+   		<if test="tbdwid !=null and tbdwid !='' ">
+			AND TBDWID = #{tbdwid}
+		</if>
+	    </where>
+	    AND NOT EXISTS (SELECT	1 FROM	T_AZ_AQFINISH C	WHERE A.ID = C.PLAN_ID)
+		ORDER BY
+		A.CREATE_TIME ASC
+	</select>
+	<!-- 添加生产计划台账 -->
+	<insert id="addSctz" parameterType="com.jsumt.vo.safe.AccountBean">
+		INSERT INTO
+		T_AZ_AQFINISH(ID,TBDW,TBDWID,TBR,YEAR,MONTH,STATUS,TRJH_TOTAL,TRJH_TOTAL_FINISH,
+		TRJH_FYPC,PARENT_ID,PLAN_ID,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		#{id},#{tbdw},#{tbdwid},#{tbr},#{year},#{month},
+		#{status},#{trjhTotal},#{trjhTotalFinish},#{trjhFypc},#{parentId},
+		#{planId},#{createTime},#{updateTime}
+		)
+	</insert>
+	<!-- 修改台账的发布状态 -->
+	<update id="updateAccount" parameterType="com.jsumt.vo.safe.AccountBean">
+		UPDATE T_AZ_AQFINISH
+		<set>
+			<if test="status != null and status != '' ">
+				STATUS = #{status},
+			</if>
+			<if test="trjhTotal != null and trjhTotal != '' ">
+				TRJH_TOTAL = #{trjhTotal},
+			</if>
+			<if test="trjhTotalFinish != null and trjhTotalFinish != '' ">
+				TRJH_TOTAL_FINISH = #{trjhTotalFinish},
+			</if>
+			<if test="trjhFypc != null and trjhFypc != '' ">
+				TRJH_FYPC = #{trjhFypc},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID = #{id}
+		</where>
+	</update>
+	<!-- 查询没有被分配的所有子单位计划 -->
+	<select id="queryNotChildrenTzs" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		A.ORG_ID,
+		A.NAME_CN AS DWMC,
+		B.YEAR AS YEAR,
+		B.ID AS CID,
+		B.MONTH AS month,
+		B.TBR AS TBR,
+		B.TRJH_TOTAL,
+		B.TRJH_TOTAL_FINISH,
+		B.TRJH_FYPC,
+		B.CREATE_TIME AS CREATETIME,
+		B.PARENT_ID AS PARENT_ID,
+		B.STATUS AS STATUS
+		FROM
+		T_SYS_ORG A
+		LEFT JOIN (SELECT * FROM T_AZ_AQFINISH C 
+		<where>
+			AND C.PARENT_ID ='0' 
+			AND C.YEAR =#{year} 
+			AND C.MONTH =#{month} 
+		</where>
+		) B ON A.ORG_ID = B.TBDWID
+		<where>
+		AND A.ORG_PID = #{org_pid}  
+		<if test="dwmc != null and dwmc != '' ">
+			AND A.NAME_CN like CONCAT('%',#{dwmc},'%') 
+		</if>
+		AND NOT EXISTS (SELECT 1 from T_AZ_AQFINISH D where D.PARENT_ID=#{tzId} AND A.ORG_ID=D.TBDWID)
+		</where>
+		ORDER BY A.ORG_NO ASC
+	</select>
+	
+	<select id="queryTzDetailInfo" resultMap="detailAccountBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_AQFINISH_QD
+		<where>
+			<if test="id !=null and id !='' ">
+				AND ID = #{id}
+			</if>
+			<if test="pzh !=null and pzh !='' ">
+				AND PZH = #{pzh}
+			</if>
+			<if test="tzId !=null and tzId !='' ">
+				AND TZ_ID = #{tzId}
+			</if>
+			<if test="content !=null and content !='' ">
+				AND CONTENT like CONCAT('%',#{content},'%')
+			</if>
+			<if test="startDate != null and startDate != '' ">
+				AND RZRQ  <![CDATA[  >= ]]> str_to_date(#{startDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endDate != null and endDate != '' ">
+				AND RZRQ  <![CDATA[  <= ]]> str_to_date(#{endDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+		</where>
+		order by CREATE_TIME
+	</select>
+	<!-- 根据id删除安全生产台账细项表 -->
+	<delete id="delDetailTzs" parameterType="java.util.List">
+		DELETE FROM T_AZ_AQFINISH_QD
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 新增生产计划细项相关增删改查********************************************************** -->
+	<insert id="addTzQd" parameterType="com.jsumt.vo.safe.DetailAccountBean">
+		INSERT INTO
+		T_AZ_AQFINISH_QD(ID,USE_DW,CONTENT,FPSL,JE,SCTR_TYPE_ID1,SCTR_TYPE_TITLE1,
+			CREATE_TIME,UPDATE_TIME,RZRQ,PZH,REMARK,TZ_ID)
+		VALUES(
+		#{id},#{useDw},#{content},#{fpsl},#{je},#{sctrTypeId1},#{sctrTypeTitle1},
+		#{createTime},#{updateTime},#{rzrq},#{pzh},#{remark},#{tzId}
+		)
+	</insert>
+	<!-- 修改计划表子单位的parent_id为0 -->
+	<update id="updatePidToZero" parameterType="java.util.List">
+		UPDATE T_AZ_AQFINISH
+		<set>
+				PARENT_ID = '0',
+				UPDATE_TIME=now()
+		</set>
+		<where>
+			PARENT_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</update>
+	<!-- 根据id删除安全生产台账-->
+	<delete id="delTzs" parameterType="java.util.List">
+		DELETE FROM T_AZ_AQFINISH
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	
+	<!-- 修改清单数据 -->
+	<update id="updateTzQd" parameterType="com.jsumt.vo.safe.DetailAccountBean">
+		UPDATE T_AZ_AQFINISH_QD
+		<set>
+			<if test="useDw != null and useDw != '' ">
+				USE_DW = #{useDw},
+			</if>
+			<if test="content != null and content != '' ">
+				CONTENT = #{content},
+			</if>
+			<if test="fpsl != null and fpsl != '' ">
+				FPSL = #{fpsl},
+			</if>
+			<if test="je != null and je != '' ">
+				JE = #{je},
+			</if>
+			<if test="sctrTypeId1 != null and sctrTypeId1 != '' ">
+				SCTR_TYPE_ID1 = #{sctrTypeId1},
+			</if>
+			<if test="sctrTypeTitle1 != null and sctrTypeTitle1 != '' ">
+				SCTR_TYPE_TITLE1 = #{sctrTypeTitle1},
+			</if>
+			<if test="rzrq != null and rzrq != '' ">
+				RZRQ = #{rzrq},
+			</if>
+			<if test="pzh != null and pzh != '' ">
+				PZH = #{pzh},
+			</if>
+			<if test="remark != null and remark != '' ">
+				REMARK = #{remark},
+			</if>
+			<if test="tzId != null and tzId != '' ">
+				TZ_ID = #{tzId},
+			</if>
+			UPDATE_TIME=now(),
+		</set>
+		<where>
+			ID = #{id}
+		</where>
+	</update>
+	
+	<select id="qryReportLjInfo" resultMap="detailAccountBean" parameterType="java.util.Map">
+		SELECT a.* FROM t_az_aqfinish_qd a,t_az_aqfinish b
+		<where>
+			a.TZ_ID = b.id
+			<if test="year !=null and year !='' ">
+				AND b.year = #{year}
+			</if>
+			<if test="tbdwid !=null and tbdwid !='' ">
+				AND b.TBDWID = #{tbdwid}
+			</if>
+			<if test="endMonth != null and endMonth != '' ">
+				AND b.MONTH  <![CDATA[  <= ]]> #{endMonth}
+			</if>
+		</where>
+	</select>
+</mapper>

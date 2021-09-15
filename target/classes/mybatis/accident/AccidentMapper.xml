@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.accident.AccidentMapper">
+	<resultMap type="com.jsumt.vo.accident.AccidentBean" id="accidentBean">
+		<id property="id" column="ID" />
+		<result property="title" column="TITLE" />
+		<result property="sgdw_id" column="SGDW_ID" />
+		<result property="sgdw" column="SGDW" />
+		<result property="sg_time" column="SG_TIME" />
+		<result property="sgdd" column="SGDD" />
+		<result property="gjss" column="GJSS" />
+		<result property="sjxcfzr" column="SJXCFZR" />
+		<result property="sgxcfzrdh" column="SGXCFZRDH" />
+		<result property="sgfzr" column="SGFZR" />
+		<result property="sgfzrdh" column="SGFZRDH" />
+		<result property="dead_people" column="DEAD_PEOPLE" />
+		<result property="hurt_people" column="HURT_PEOPLE" />
+		<result property="light_people" column="LIGHT_PEOPLE" />
+		<result property="sgjyjg" column="SGJYJG" />
+		<result property="sgxcqk" column="SGXCQK" />
+		<result property="qtqk" column="QTQK" />
+		<result property="sgjghyjjyqk" column="SGJGHYJJYQK" />
+		<result property="sgyyxzzrrdcl" column="SGYYXZZRRDCL" />
+		<result property="sgffjzgcs" column="SGFFJZGCS" />
+		<result property="org_id" column="ORG_ID" />
+		<result property="remark" column="REMARK" />
+		<result property="sg_type" column="SG_TYPE" />
+		<result property="sglb" column="SG_LB" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	<resultMap type="com.jsumt.vo.accident.HurtPeopleBean" id="hurtPeopleBean">
+		<id property="id" column="ID" />
+		<result property="user_name" column="USER_NAME" />
+		<result property="work_type" column="WORK_TYPE" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="cbxs" column="CBXS" />
+		<result property="sex" column="SEX" />
+		<result property="age" column="AGE" />
+		<result property="is_draf" column="IS_DRAF" />
+		<result property="status" column="STATUS" />
+		<result property="sgbid" column="SGBID" />
+		<result property="createTime" column="CREATE_TIME" />
+		<result property="updateTime" column="UPDATE_TIME" />
+	</resultMap>
+	<!-- 根据条件查询所有事故 -->
+	<select id="queryAllAccidents" resultMap="accidentBean" parameterType="java.util.Map">
+		SELECT * FROM T_AZ_ACCIDENT
+		<where>
+			<if test="title != null and title != '' ">
+				AND TITLE like CONCAT('%',#{title},'%')
+			</if>
+			<if test="sg_type != null and sg_type != '' ">
+				AND SG_TYPE = #{sg_type}
+			</if>
+			<if test="sgdw != null and sgdw != '' ">
+				AND SGDW like CONCAT('%',#{sgdw},'%')
+			</if>
+			<if test="sglb != null and sglb != '' ">
+				AND SG_LB = #{sglb}
+			</if>
+			<if test="org_id != null and org_id != '' ">
+				AND ORG_ID = #{org_id}
+			</if>
+			<if test="sgdw_id != null and sgdw_id != '' ">
+				AND SGDW_ID = #{sgdw_id}
+			</if>
+			<if test="startDate != null and startDate != '' ">
+				AND SG_TIME  <![CDATA[  >= ]]> str_to_date(#{startDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="endDate != null and endDate != '' ">
+				AND SG_TIME  <![CDATA[  <= ]]> str_to_date(#{endDate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="id != null and id != '' ">
+				AND ID = #{id}
+			</if>
+		</where>
+		ORDER BY SG_TIME DESC
+	</select>
+	<!-- 新增事故 -->
+	<insert id="addAccident" parameterType="com.jsumt.vo.accident.AccidentBean">
+		INSERT INTO
+		T_AZ_ACCIDENT(ID,TITLE,SGDW_ID,SGDW,SG_TIME,SGDD,GJSS,SJXCFZR,SGXCFZRDH,SGFZR,SGFZRDH,DEAD_PEOPLE,
+			HURT_PEOPLE,LIGHT_PEOPLE,SGJYJG,SGXCQK,QTQK,SGJGHYJJYQK,SGYYXZZRRDCL,SGFFJZGCS,
+			ORG_ID,REMARK,SG_TYPE,SG_LB,CREATE_TIME,UPDATE_TIME)
+		VALUES(
+		#{id},#{title},#{sgdw_id},#{sgdw},#{sg_time},#{sgdd},
+		#{gjss},#{sjxcfzr},#{sgxcfzrdh},#{sgfzr},#{sgfzrdh},
+		#{dead_people},#{hurt_people},#{light_people},#{sgjyjg},
+		#{sgxcqk},#{qtqk},#{sgjghyjjyqk},#{sgyyxzzrrdcl},#{sgffjzgcs},
+		#{org_id},#{remark},#{sg_type},#{sglb},#{createTime},#{updateTime}
+		)
+	</insert>
+	<!-- 根据id删除事故 -->
+	<delete id="delAccident" parameterType="java.util.List">
+		DELETE FROM T_AZ_ACCIDENT
+		<where>
+			ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	<!-- 修改事故的数据 -->
+	<update id="updateAccident" parameterType="java.util.Map" >
+	   UPDATE T_AZ_ACCIDENT
+	     <set>
+			<if test="title != null and title != '' ">
+				TITLE = #{title},
+			</if>
+			<if test="sgdw_id != null and sgdw_id != '' ">
+				SGDW_ID = #{sgdw_id},
+			</if>
+			<if test="sgdw != null and sgdw != '' ">
+				SGDW = #{sgdw},
+			</if>
+			<if test="sg_time != null and sg_time != '' ">
+				SG_TIME = #{sg_time},
+			</if>
+			<if test="sgdd != null and sgdd != '' ">
+				SGDD = #{sgdd},
+			</if>
+			<if test="gjss != null and gjss != '' ">
+				GJSS = #{gjss},
+			</if>
+			<if test="sjxcfzr != null and sjxcfzr != '' ">
+				SJXCFZR = #{sjxcfzr},
+			</if>
+			<if test="sgxcfzrdh != null and sgxcfzrdh != '' ">
+				SGXCFZRDH = #{sgxcfzrdh},
+			</if>
+			<if test="sgfzr != null and sgfzr != '' ">
+				SGFZR = #{sgfzr},
+			</if>
+			<if test="sgfzrdh != null and sgfzrdh != '' ">
+				SGFZRDH = #{sgfzrdh},
+			</if>
+			<if test="dead_people != null and dead_people != '' ">
+				DEAD_PEOPLE = #{dead_people},
+			</if>
+			<if test="hurt_people != null and hurt_people != '' ">
+				HURT_PEOPLE = #{hurt_people},
+			</if>
+			<if test="light_people != null and light_people != '' ">
+				LIGHT_PEOPLE = #{light_people},
+			</if>
+			<if test="sgjyjg != null and sgjyjg != '' ">
+				SGJYJG = #{sgjyjg},
+			</if>
+			<if test="sgxcqk != null and sgxcqk != '' ">
+				SGXCQK = #{sgxcqk},
+			</if>
+			<if test="qtqk != null and qtqk != '' ">
+				QTQK = #{qtqk},
+			</if>
+			<if test="sgjghyjjyqk != null and sgjghyjjyqk != '' ">
+				SGJGHYJJYQK = #{sgjghyjjyqk},
+			</if>
+			<if test="sgyyxzzrrdcl != null and sgyyxzzrrdcl != '' ">
+				SGYYXZZRRDCL = #{sgyyxzzrrdcl},
+			</if>
+			<if test="sgffjzgcs != null and sgffjzgcs != '' ">
+				SGFFJZGCS = #{sgffjzgcs},
+			</if>
+			<if test="org_id != null and org_id != '' ">
+				ORG_ID = #{org_id},
+			</if>
+			<if test="remark != null and remark != '' ">
+				REMARK = #{remark},
+			</if>
+			<if test="sg_type != null and sg_type != '' ">
+				SG_TYPE = #{sg_type},
+			</if>
+			<if test="sglb != null and sglb != '' ">
+				SG_LB = #{sglb},
+			</if>
+			UPDATE_TIME=now(),
+	    </set>
+		<where>
+			ID = #{id}	
+		</where>
+	</update>
+	<!-- 根据id查询一条事故的信息 -->
+	<select id="queryOneById" resultMap="accidentBean"
+		parameterType="java.lang.String">
+		SELECT * FROM T_AZ_ACCIDENT
+		<where>
+			AND ID=#{id}
+		</where>
+	</select>
+	<select id="querySgReport" resultType="java.util.Map">
+	  SELECT COUNT(T.ID) NUM,T.ORG_ID,T.* FROM T_AZ_ACCIDENT T WHERE T.SG_TYPE="0"  GROUP BY T.ORG_ID
+	</select>
+	
+</mapper>

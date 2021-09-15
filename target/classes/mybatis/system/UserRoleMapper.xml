@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsumt.mapper.system.UserRoleMapper">
+	<resultMap type="com.jsumt.vo.system.UserBean" id="userManger">
+		<id property="user_id" column="USER_ID" />
+		<result property="birthday" column="BIRTHDAY" />
+		<result property="user_name" column="USER_NAME" />
+		<result property="user_code" column="USER_CODE" />
+		<result property="phone" column="PHONE" />
+		<result property="work_no" column="WORK_NO" />
+		<result property="sex" column="SEX" />
+		<result property="work_date" column="WORK_DATE" />
+		<result property="link_user_phone" column="LINK_USER_PHONE" />
+		<result property="home_addr" column="HOME_ADDR" />
+		<result property="user_pwd" column="USER_PWD" />
+		<result property="car_no" column="CAR_NO" />
+	</resultMap>
+	<resultMap type="com.jsumt.vo.system.RoleBean" id="roleBean">
+		<id property="role_id" column="ROLE_ID" />
+		<result property="role_name" column="ROLE_NAME" />
+		<result property="role_no" column="ROLE_NO" />
+		<result property="role_code" column="ROLE_CODE" />
+		<result property="remark" column="REMARK" />
+		<result property="role_type" column="ROLE_TYPE" />
+		<result property="role_pid" column="ROLE_PID" />
+		<result property="roleLayer" column="ROLE_LAYER" />
+		<result property="iconCls" column="ICONCLS" />
+	</resultMap>	
+	
+	<!-- 批量插入角色用户数据   Parameter 'userId' not found. Available parameters are [list]  -->
+	<insert id="distributeUserInRole" parameterType="java.util.List">
+		insert into T_SYS_ROLEUSER
+		(ID,ROLE_ID,USER_ID)
+		values
+		<foreach collection="list" item="roleUser" index="index"
+			separator=",">
+			(
+			#{roleUser.id},#{roleUser.roleId},#{roleUser.userId}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 根据条件查询用户（没有关联角色的用户） -->
+	<select id="qUserNotInRole" resultMap="userManger"
+		parameterType="java.util.Map">
+		SELECT t.*
+		from T_SYS_USERS t
+		<where>
+			 NOT EXISTS (
+			select u.*
+			from T_SYS_USERS u inner join
+			T_SYS_ROLEUSER ro
+			on u.USER_ID=ro.USER_ID
+			inner join T_SYS_ROLE r
+			on
+			ro.ROLE_ID =r.ROLE_ID
+			<where>
+			   u.USER_ID=t.USER_ID
+				<if test="roleId != null and roleId != '' ">
+					AND r.ROLE_ID =#{roleId}
+				</if>
+			</where>
+			)
+			<if test="userName != null and userName != '' ">
+				AND t.USER_NAME like CONCAT('%',#{userName},'%')
+			</if>
+			<if test="userCode != null and userCode != '' ">
+				AND t.USER_CODE like CONCAT('%',#{userCode},'%')
+			</if>
+
+		</where>
+
+	</select>
+
+	<!-- 删除某角色下的用户 -->
+	<delete id="delUserInRole" parameterType="java.util.Map">
+		DELETE FROM
+		T_SYS_ROLEUSER WHERE USER_ID=#{userId} AND ROLE_ID=#{roleId}
+	</delete>
+
+	<!-- 根据条件查询用户（关联角色） -->
+	<select id="queryUserByRole" resultMap="userManger"
+		parameterType="java.util.Map">
+		select u.*
+		from T_SYS_USERS u inner join T_SYS_ROLEUSER ro
+		on
+		u.USER_ID=ro.USER_ID
+		inner join T_SYS_ROLE r
+		on ro.ROLE_ID =r.ROLE_ID
+		<where>
+			<if test="roleId != null and roleId != '' ">
+				AND r.ROLE_ID =#{roleId}
+			</if>
+			<if test="userName != null and userName != '' ">
+				AND u.USER_NAME like CONCAT('%',#{userName},'%')
+			</if>
+			<if test="userCode != null and userCode != '' ">
+				AND u.USER_CODE like CONCAT('%',#{userCode},'%')
+			</if>
+		</where>
+	</select>
+	
+	<!-- 根据role_id删除ROLEUSER -->
+	<delete id="deleteURByRoleId" parameterType="java.util.List">
+		DELETE FROM T_SYS_ROLEUSER
+		<where>
+			ROLE_ID IN
+			<foreach collection="list" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</where>
+	</delete>
+	
+	<!-- 根据条件查询用户（关联角色） -->
+	<select id="queryRoleByUser" resultMap="roleBean"
+		parameterType="com.jsumt.vo.system.UserBean">
+		select r.*
+		from T_SYS_USERS u inner join T_SYS_ROLEUSER ro
+		on
+		u.USER_ID=ro.USER_ID
+		inner join T_SYS_ROLE r
+		on ro.ROLE_ID =r.ROLE_ID
+		<where>
+			<if test="user_id != null and user_id != '' ">
+				AND u.USER_ID = #{user_id}
+			</if>
+			<if test="user_name != null and user_name != '' ">
+				AND u.USER_NAME = #{user_name}
+			</if>
+			<if test="user_code != null and user_code != '' ">
+				AND u.USER_CODE = #{user_code}
+			</if>
+		</where>
+	</select>
+
+</mapper>
